@@ -44,7 +44,7 @@ sudo dmidecode -t 4 | grep "Thread Count" >> /home/$USER/Desktop/specs.tex
 echo "\section{RAM}" >> /home/$USER/Desktop/specs.tex
 #vmstat -sS M | grep "total memory" >> /home/$USER/Desktop/specs.tex
 #lshw -c memory | grep size >> /home/$USER/Desktop/specs.tex
-sudo lshw -short | grep "System Memory" | sed 's/^[^memory]*memory//' >> /home/$USER/Desktop/specs.tex
+sudo lshw -short | grep "System Memory" | sed 's/^[^m]*memory//' >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t memory | grep "Maximum Capacity" >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex
