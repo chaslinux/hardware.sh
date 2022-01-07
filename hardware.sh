@@ -47,8 +47,10 @@ echo "\section{RAM}" >> /home/$USER/Desktop/specs.tex
 sudo lshw -short | grep "System Memory" | sed 's/^[^m]*memory//' >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t memory | grep "Maximum Capacity" >> /home/$USER/Desktop/specs.tex
+echo "\quad" >> /home/$USER/Desktop/specs.tex
+# unfortunately some manufacurers put SDRAM in place of DDR2, DDR3, so this may not show
+sudo dmidecode -t 17 | grep -m 1 "Type: DDR" >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex
-#sudo dmidecode -t 17 | grep -m 1 "Type: DDR" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 17 | grep "Configured Memory Speed" >> /home/$USER/Desktop/specs.tex
 
 #detect GRAPHICS information
