@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright 2002 Charles McColm, chaslinux@gmail.com
+# Licensed under GPLv3, the General Public License v3.0
 
 # install necessary extra software
 sudo apt -y install smartmontools # for hard drives
@@ -10,8 +12,13 @@ if [ ! -f /home/$USER/Desktop/specs.tex ]; then
 	echo "creating /home/$USER/Desktop/specs.tex"
 	touch /home/$USER/Desktop/specs.tex
 	echo "\documentclass{article}" >> /home/$USER/Desktop/specs.tex
+	echo "\usepackage[legalpaper, portrait, margin=1.5in]{geometry}" >> /home/$USER/Desktop/specs.tex
+	echo "\title{System Specifications}" >> /home/$USER/Desktop/specs.tex
 	echo "\begin{document}" >> /home/$USER/Desktop/specs.tex
 fi
+
+# First output the title
+echo "\maketitle" >> /home/$USER/Desktop/specs.tex
 
 # detect Model/Mfg information
 echo "\section{Model}" >> /home/$USER/Desktop/specs.tex
@@ -20,13 +27,13 @@ echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 1 | grep "Product Name" >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 1 | grep "Family" >> /home/$USER/Desktop/specs.tex
-echo "\newline" >> /home/$USER/Desktop/specs.tex
+echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 1 | grep "Serial" >> /home/$USER/Desktop/specs.tex
 
 #detect CPU information
 echo "\section{CPU}" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 4 | grep "Manufacturer" >> /home/$USER/Desktop/specs.tex
-echo "\newline" >> /home/$USER/Desktop/specs.tex
+echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 4 | grep "Version" >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 4 | grep "Core Count" >> /home/$USER/Desktop/specs.tex
