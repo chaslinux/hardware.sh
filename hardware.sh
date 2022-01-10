@@ -61,11 +61,27 @@ glxinfo | grep "OpenGL version" >> /home/$USER/Desktop/specs.tex
 
 #detect hard drive
 echo "\section{HardDrive}" >> /home/$USER/Desktop/specs.tex
-sudo smartctl -d ata -a -i /dev/sda | grep "Model Family" >> /home/$USER/Desktop/specs.tex
-echo "\newline" >> /home/$USER/Desktop/specs.tex
-sudo smartctl -d ata -a -i /dev/sda | grep "Device Model" >> /home/$USER/Desktop/specs.tex
-echo "\newline" >> /home/$USER/Desktop/specs.tex
-sudo smartctl -d ata -a -i /dev/sda | grep "User Capacity" >> /home/$USER/Desktop/specs.tex
+# Need to add code to detect nvme device but then store device in variable
+# if sudo lshw -short | grep -q '/dev/nvme'; then
+# 
+# This should be an array for any /dev/sd device rather than /dev/sda and /dev/sdb
+# However, at this point our needs are simple, so we don't need this yet.
+# this detects the hard drive 
+if sudo lshw -short | grep -q '/dev/sda'; then
+	sudo smartctl -d ata -a -i /dev/sda | grep "Model Family" >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	sudo smartctl -d ata -a -i /dev/sda | grep "Device Model" >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	sudo smartctl -d ata -a -i /dev/sda | grep "User Capacity" >> /home/$USER/Desktop/specs.tex
+fi
+# if there's a second hard drive
+if sudo lshw -short | grep -q '/dev/sdb'; then
+	sudo smartctl -d ata -a -i /dev/sdb | grep "Model Family" >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	sudo smartctl -d ata -a -i /dev/sdb | grep "Device Model" >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	sudo smartctl -d ata -a -i /dev/sdb | grep "User Capacity" >> /home/$USER/Desktop/specs.tex
+fi
 
 #detect CD/DVD drive
 echo "\section{DVDDrive}" >> /home/$USER/Desktop/specs.tex
