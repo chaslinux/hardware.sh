@@ -61,8 +61,10 @@ glxinfo | grep "OpenGL version" >> /home/$USER/Desktop/specs.tex
 
 #detect hard drive
 echo "\section{HardDrive}" >> /home/$USER/Desktop/specs.tex
-sudo smartctl -d ata -a -i /dev/sda | grep "Model Family" >> /home/$USER/Desktop/specs.tex
-echo "\newline" >> /home/$USER/Desktop/specs.tex
+if sudo smartctl -d ata -a -i /dev/sda | grep "Model Family"; then
+	sudo smartctl -d ata -a -i /dev/sda | grep "Model Family" >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+fi
 sudo smartctl -d ata -a -i /dev/sda | grep "Device Model" >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 sudo smartctl -d ata -a -i /dev/sda | grep "User Capacity" >> /home/$USER/Desktop/specs.tex
