@@ -5,6 +5,7 @@
 # install necessary extra software
 sudo apt -y install smartmontools # for hard drives
 sudo apt -y install libcdio-utils # for cd-drives
+sudo apt -y install acpi # for power information on laptops
 sudo apt -y install texlive-latex-base # to make pdfs
 
 # create a latex document at /home/$USER/Desktop/specs.tex
