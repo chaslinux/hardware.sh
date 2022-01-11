@@ -62,6 +62,10 @@ glxinfo | grep "OpenGL version" >> /home/$USER/Desktop/specs.tex
 
 #detect hard drive
 echo "\section{HardDrive}" >> /home/$USER/Desktop/specs.tex
+if lshw -short | grep nvme; then
+	lshw -short | grep -m1 nvme | cut -c 17- >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+fi
 if sudo smartctl -d ata -a -i /dev/sda | grep "Model Family"; then
 	sudo smartctl -d ata -a -i /dev/sda | grep "Model Family" >> /home/$USER/Desktop/specs.tex
 	echo "\newline" >> /home/$USER/Desktop/specs.tex
