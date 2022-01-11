@@ -91,5 +91,4 @@ echo "\end{document}" >> /home/$USER/Desktop/specs.tex
 cd /home/$USER/Desktop
 # the line below strips out any underscores _ from specs.tex
 sed -i s/\_//g specs.tex
-sed 's/^	*$//g' specs.tex > specifications.tex
-pdflatex specifications.tex
+pdflatex specs.tex
