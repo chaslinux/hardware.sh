@@ -89,6 +89,24 @@ sudo lshw -class network | grep product >> /home/$USER/Desktop/specs.tex
 echo "\section{Sound}" >> /home/$USER/Desktop/specs.tex
 sudo lshw -class sound | grep -m 1 product >> /home/$USER/Desktop/specs.tex
 
+if [ -d "/proc/acpi/button/lid" ]; then
+	# install necessary extra software
+	echo "\section{Laptop Specific}" >> /home/$USER/Desktop/specs.tex
+	sudo apt -y install texlive-latex-base # to make pdfs
+
+	upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep model >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'energy-full-design' >> /home/$USER/Desktop/specs.tex
+	echo "\quad" >> /home/$USER/Desktop/specs.tex
+	upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'energy-full:' >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep capacity >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	# display the resolution
+	xrandr | grep -m1 connected >> /home/$USER/Desktop/specs.tex
+fi
+
+
 echo "\end{document}" >> /home/$USER/Desktop/specs.tex
 cd /home/$USER/Desktop
 # the line below strips out any underscores _ from specs.tex
