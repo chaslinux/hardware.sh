@@ -68,13 +68,16 @@ echo "\newline" >> /home/$USER/Desktop/specs.tex
 sudo smartctl -d ata -a -i /dev/sda | grep "User Capacity" >> /home/$USER/Desktop/specs.tex
 
 
-#detect CD/DVD drive
-echo "\section{DVDDrive}" >> /home/$USER/Desktop/specs.tex
-cd-drive | grep Vendor >> /home/$USER/Desktop/specs.tex
-echo "\quad" >> /home/$USER/Desktop/specs.tex
-cd-drive | grep Model >> /home/$USER/Desktop/specs.tex
-echo "\quad" >> /home/$USER/Desktop/specs.tex
-cd-drive | grep Revision >> /home/$USER/Desktop/specs.tex
+# detect CD/DVD drive
+# If there's none then nothing happens
+if lshw -short | grep cdrom; then
+	echo "\section{DVDDrive}" >> /home/$USER/Desktop/specs.tex
+	cd-drive | grep Vendor >> /home/$USER/Desktop/specs.tex
+	echo "\quad" >> /home/$USER/Desktop/specs.tex
+	cd-drive | grep Model >> /home/$USER/Desktop/specs.tex
+	echo "\quad" >> /home/$USER/Desktop/specs.tex
+	cd-drive | grep Revision >> /home/$USER/Desktop/specs.tex
+fi
 
 #detect network card information
 echo "\section{Network}" >> /home/$USER/Desktop/specs.tex
