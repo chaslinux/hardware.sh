@@ -44,6 +44,7 @@ echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 1 | grep "Serial" >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 echo "\includegraphics{serial.pdf}" >> /home/$USER/Desktop/specs.tex
+echo "\newline" >> /home/$USER/Desktop/specs.tex
 # Now remove all the files that got created to generate the pdf
 rm barcode.txt barcode.eps barcode.pdf
 
