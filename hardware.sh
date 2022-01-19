@@ -114,8 +114,10 @@ sudo lshw -class sound | grep -m 1 product >> /home/$USER/Desktop/specs.tex
 if [ -d "/proc/acpi/button/lid" ]; then
 	# install necessary extra software
 	echo "\section{Laptop Specific}" >> /home/$USER/Desktop/specs.tex
-	acpi -V | grep "design capacity" >> /home/$USER/Desktop/specs.tex
-	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	if acpi -V | grep "design capacity"; then
+		acpi -V | grep "design capacity" >> /home/$USER/Desktop/specs.tex
+		echo "\newline" >> /home/$USER/Desktop/specs.tex
+	fi
 	# display the resolution
 	xrandr | grep -m1 connected >> /home/$USER/Desktop/specs.tex
 fi
