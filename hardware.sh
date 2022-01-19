@@ -2,6 +2,9 @@
 # Copyright 2002 Charles McColm, chaslinux@gmail.com
 # Licensed under GPLv3, the General Public License v3.0
 
+# update the system because the script might not work if old software is installed
+sudo apt update && sudo apt -y upgrade
+
 # install necessary extra software
 sudo apt -y install smartmontools # for hard drives
 sudo apt -y install libcdio-utils # for cd-drives
