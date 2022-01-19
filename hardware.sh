@@ -17,7 +17,7 @@ if [ ! -f /home/$USER/Desktop/specs.tex ]; then
 	echo "creating /home/$USER/Desktop/specs.tex"
 	touch /home/$USER/Desktop/specs.tex
 	echo "\documentclass{article}" >> /home/$USER/Desktop/specs.tex
-	echo "\usepackage[legalpaper, portrait, margin=1.5in]{geometry}" >> /home/$USER/Desktop/specs.tex
+	echo "\usepackage[legalpaper, portrait, margin=0.5in]{geometry}" >> /home/$USER/Desktop/specs.tex
 	echo "\usepackage{graphicx}" >> /home/$USER/Desktop/specs.tex
 	echo "\title{System Specifications}" >> /home/$USER/Desktop/specs.tex
 	echo "\begin{document}" >> /home/$USER/Desktop/specs.tex
