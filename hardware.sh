@@ -10,6 +10,7 @@ sudo apt -y install texlive-latex-base # to make pdfs
 sudo apt -y install barcode # to create barcodes
 # Note: I don't like installing all these extra tools for one tool.
 sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
+sudo apt -y install texlive-pictures # more barcode handling
 
 # create a latex document at /home/$USER/Desktop/specs.tex
 if [ ! -f /home/$USER/Desktop/specs.tex ]; then
@@ -31,9 +32,6 @@ barcode -e 128 -i /home/$USER/Desktop/barcode.txt  -o /home/$USER/Desktop/barcod
 cd /home/$USER/Desktop
 epspdf barcode.eps barcode.pdf
 pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
-echo "\includegraphics{serial.pdf}" >> /home/$USER/Desktop/specs.tex
-# Now remove all the files that got created to generate the pdf
-rm barcode.txt barcode.eps barcode.pdf
 
 # detect Model/Mfg information
 echo "\section{Model}" >> /home/$USER/Desktop/specs.tex
@@ -44,6 +42,10 @@ echo "\newline" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 1 | grep "Family" >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 1 | grep "Serial" >> /home/$USER/Desktop/specs.tex
+echo "\newline" >> /home/$USER/Desktop/specs.tex
+echo "\includegraphics{serial.pdf}" >> /home/$USER/Desktop/specs.tex
+# Now remove all the files that got created to generate the pdf
+rm barcode.txt barcode.eps barcode.pdf
 
 #detect CPU information
 echo "\section{CPU}" >> /home/$USER/Desktop/specs.tex
