@@ -7,6 +7,9 @@ sudo apt -y install smartmontools # for hard drives
 sudo apt -y install libcdio-utils # for cd-drives
 sudo apt -y install acpi # for power information on laptops
 sudo apt -y install texlive-latex-base # to make pdfs
+sudo apt -y install barcode # to create barcodes
+# Note: I don't like installing all these extra tools for one tool.
+sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
 
 # create a latex document at /home/$USER/Desktop/specs.tex
 if [ ! -f /home/$USER/Desktop/specs.tex ]; then
@@ -14,12 +17,23 @@ if [ ! -f /home/$USER/Desktop/specs.tex ]; then
 	touch /home/$USER/Desktop/specs.tex
 	echo "\documentclass{article}" >> /home/$USER/Desktop/specs.tex
 	echo "\usepackage[legalpaper, portrait, margin=1.5in]{geometry}" >> /home/$USER/Desktop/specs.tex
+	echo "\usepackage{graphicx}" >> /home/$USER/Desktop/specs.tex
 	echo "\title{System Specifications}" >> /home/$USER/Desktop/specs.tex
 	echo "\begin{document}" >> /home/$USER/Desktop/specs.tex
 fi
 
 # First output the title
 echo "\maketitle" >> /home/$USER/Desktop/specs.tex
+
+# Now let's create the barcode
+sudo dmidecode -t 1 | grep "Serial" | cut -c 17- >> /home/$USER/Desktop/barcode.txt
+barcode -e 128 -i /home/$USER/Desktop/barcode.txt  -o /home/$USER/Desktop/barcode.eps
+cd /home/$USER/Desktop
+epspdf barcode.eps barcode.pdf
+pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
+echo "\includegraphics{serial.pdf}" >> /home/$USER/Desktop/specs.tex
+# Now remove all the files that got created to generate the pdf
+rm barcode.txt barcode.eps barcode.pdf
 
 # detect Model/Mfg information
 echo "\section{Model}" >> /home/$USER/Desktop/specs.tex
@@ -109,3 +123,7 @@ cd /home/$USER/Desktop
 # the line below strips out any underscores _ from specs.tex
 sed -i s/\_//g specs.tex
 pdflatex specs.tex
+
+# lastly remove serial.pdf and other files once the specs.pdf is created
+cd /home/$USER/Desktop
+rm specs.log specs.aux serial.pdf
