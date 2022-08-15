@@ -77,7 +77,7 @@ sudo dmidecode -t 17 | grep "Configured Memory Speed" >> /home/$USER/Desktop/spe
 #detect GRAPHICS information
 echo "\section{GRAPHICS}" >> /home/$USER/Desktop/specs.tex
 sudo lshw -C Display | grep product | sed '/s/&//g' >> /home/$USER/Desktop/specs.tex
-echo "\newline" >> /home/$USER/Desktop/specs.tex
+# echo "\newline" >> /home/$USER/Desktop/specs.tex
 glxinfo | grep "OpenGL version" >> /home/$USER/Desktop/specs.tex
 
 #detect hard drive
