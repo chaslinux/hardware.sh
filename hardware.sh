@@ -30,6 +30,8 @@ fi
 echo "\maketitle" >> /home/$USER/Desktop/specs.tex
 
 # Now let's create the barcode
+# if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/$USER/Desktop/barcode.txt
+# Wrap bottom statement in an IF statement or maybe set this as a varable before
 sudo dmidecode -t 1 | grep "Serial" | cut -c 17- >> /home/$USER/Desktop/barcode.txt
 barcode -e 128 -i /home/$USER/Desktop/barcode.txt  -o /home/$USER/Desktop/barcode.eps
 cd /home/$USER/Desktop
