@@ -2,6 +2,10 @@
 # Copyright 2002 Charles McColm, chaslinux@gmail.com
 # Licensed under GPLv3, the General Public License v3.0
 
+# Variables
+FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10-)
+
+
 # update the system because the script might not work if old software is installed
 sudo apt update && sudo apt -y upgrade
 
@@ -32,7 +36,15 @@ echo "\maketitle" >> /home/$USER/Desktop/specs.tex
 # Now let's create the barcode
 # if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/$USER/Desktop/barcode.txt
 # Wrap bottom statement in an IF statement or maybe set this as a varable before
-sudo dmidecode -t 1 | grep "Serial" | cut -c 17- >> /home/$USER/Desktop/barcode.txt
+if [[ $FAMILY == 'To be filled by O.E.M.' ]]
+	then
+		echo $FAMILY
+		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' >> /home/$USER/Desktop/barcode.txt
+	else
+		echo $FAMILY
+		sudo dmidecode -t 1 | grep "Serial" | cut -c 17- >> /home/$USER/Desktop/barcode.txt
+fi
+
 barcode -e 128 -i /home/$USER/Desktop/barcode.txt  -o /home/$USER/Desktop/barcode.eps
 cd /home/$USER/Desktop
 epspdf barcode.eps barcode.pdf
