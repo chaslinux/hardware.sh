@@ -52,6 +52,11 @@ pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
 
 # detect Model/Mfg information
 echo "\section{Model}" >> /home/$USER/Desktop/specs.tex
+if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]
+	then
+	echo "Motherboard: " $MMFG $MMODEL >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+fi
 sudo dmidecode -t 1 | grep "Manufacturer"  >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 1 | grep "Product Name" >> /home/$USER/Desktop/specs.tex
