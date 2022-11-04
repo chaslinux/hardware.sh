@@ -4,6 +4,9 @@
 
 # Variables
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10-)
+MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
+MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15-)
+# Note: MMODEL includes a space before the model
 
 
 # update the system because the script might not work if old software is installed
