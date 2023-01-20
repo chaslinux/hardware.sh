@@ -39,7 +39,7 @@ echo "\maketitle" >> /home/$USER/Desktop/specs.tex
 # Now let's create the barcode
 # if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/$USER/Desktop/barcode.txt
 # Wrap bottom statement in an IF statement or maybe set this as a varable before
-if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]
+if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' || $FAMILY == 'Not Specified' ]]
 	then
 		echo $FAMILY
 		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' >> /home/$USER/Desktop/barcode.txt
@@ -99,6 +99,8 @@ sudo dmidecode -t 17 | grep "Configured Memory Speed" >> /home/$USER/Desktop/spe
 #detect GRAPHICS information
 echo "\section{GRAPHICS}" >> /home/$USER/Desktop/specs.tex
 sudo lshw -C Display | grep product | sed 's/&//g' >> /home/$USER/Desktop/specs.tex
+echo "\newline" >> /home/$USER/Desktop/specs.tex # this and the following line added 20/01/2023
+glxinfo | grep "Video memory" >> /home/$USER/Desktop/specs.tex 
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 glxinfo | grep "OpenGL version" >> /home/$USER/Desktop/specs.tex
 
