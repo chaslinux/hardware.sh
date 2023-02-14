@@ -9,6 +9,8 @@ SLEN=`echo $SERIALNO | awk '{print length}'` # added this because SERIAL NUMBER
 MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
 MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15-)
 CPUMODEL=$(cat /proc/cpuinfo | grep -m 1 "model name" | cut -c 14-)
+VRAM=$(glxinfo | grep "Video memory")
+VLEN=`echo $VRAM | awk '{print length}'` # vram character length
 # Note: MMODEL includes a space before the model
 
 
@@ -62,8 +64,8 @@ pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
 echo "\section{Model}" >> /home/$USER/Desktop/specs.tex
 if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]
 	then
-	echo "Motherboard: " $MMFG $MMODEL >> /home/$USER/Desktop/specs.tex
-	echo "\newline" >> /home/$USER/Desktop/specs.tex
+		echo "Motherboard: " $MMFG "Model: " $MMODEL >> /home/$USER/Desktop/specs.tex
+		echo "\newline" >> /home/$USER/Desktop/specs.tex
 fi
 sudo dmidecode -t 1 | grep "Manufacturer"  >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
@@ -83,7 +85,7 @@ echo "\section{CPU}" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 4 | grep "Manufacturer" >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
 # sudo dmidecode -t 4 | grep "Version" >> /home/$USER/Desktop/specs.tex
-echo $CPUMODEL >> /home/$USER/Desktop/specs.tex
+echo "Model: " $CPUMODEL >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 4 | grep "Core Count" >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
@@ -106,7 +108,12 @@ sudo dmidecode -t 17 | grep "Configured Memory Speed" >> /home/$USER/Desktop/spe
 echo "\section{GRAPHICS}" >> /home/$USER/Desktop/specs.tex
 sudo lshw -C Display | grep product | sed 's/&//g' >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex # this and the following line added 20/01/2023
-glxinfo | grep "Video memory" >> /home/$USER/Desktop/specs.tex 
+if [[ $VLEN -gt 2 ]]
+	then
+		echo $VRAM >> /home/$USER/Desktop/specs.tex 
+	else
+		glxinfo | grep "Total video" | cut -c 5- >> /home$USER/Desktop/specs.tex
+fi
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 glxinfo | grep "OpenGL version" >> /home/$USER/Desktop/specs.tex
 
