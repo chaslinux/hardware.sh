@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2002 Charles McColm, chaslinux@gmail.com
+# Copyright 2022, 2023 Charles McColm, chaslinux@gmail.com
 # Licensed under GPLv3, the General Public License v3.0
 
 # Variables
@@ -8,6 +8,7 @@ SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=`echo $SERIALNO | awk '{print length}'` # added this because SERIAL NUMBER
 MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
 MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15-)
+CPUMODEL=$(cat /proc/cpuinfo | grep -m 1 "model name" | cut -c 14-)
 # Note: MMODEL includes a space before the model
 
 
@@ -29,6 +30,7 @@ if [ ! -f /home/$USER/Desktop/specs.tex ]; then
 	echo "creating /home/$USER/Desktop/specs.tex"
 	touch /home/$USER/Desktop/specs.tex
 	echo "\documentclass{article}" >> /home/$USER/Desktop/specs.tex
+	echo "\usepackage{parskip}" >> /home/$USER/Desktop/specs.tex
 	echo "\usepackage[legalpaper, portrait, margin=0.5in]{geometry}" >> /home/$USER/Desktop/specs.tex
 	echo "\usepackage{graphicx}" >> /home/$USER/Desktop/specs.tex
 	echo "\title{System Specifications}" >> /home/$USER/Desktop/specs.tex
@@ -80,7 +82,8 @@ rm barcode.txt barcode.eps barcode.pdf
 echo "\section{CPU}" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 4 | grep "Manufacturer" >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
-sudo dmidecode -t 4 | grep "Version" >> /home/$USER/Desktop/specs.tex
+# sudo dmidecode -t 4 | grep "Version" >> /home/$USER/Desktop/specs.tex
+echo $CPUMODEL >> /home/$USER/Desktop/specs.tex
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t 4 | grep "Core Count" >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
