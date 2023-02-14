@@ -112,7 +112,7 @@ if [[ $VLEN -gt 2 ]]
 	then
 		echo $VRAM >> /home/$USER/Desktop/specs.tex 
 	else
-		glxinfo | grep "Total available memory" | cut -c 5- >> /home$USER/Desktop/specs.tex
+		glxinfo | grep "Total available memory" | cut -c 5- >> /home/$USER/Desktop/specs.tex
 fi
 echo "\newline" >> /home/$USER/Desktop/specs.tex
 glxinfo | grep "OpenGL version" >> /home/$USER/Desktop/specs.tex
