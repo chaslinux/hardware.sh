@@ -4,7 +4,8 @@
 
 # Variables
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10-)
-FLEN=`echo $FAMILY | awk '{print length}'` # added this because FAMILY is sometimes blank
+SERIALNO=$(sudo dmidecode --string system-serial-number)
+SLEN=`echo $SERIALNO | awk '{print length}'` # added this because SERIAL NUMBER
 MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
 MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15-)
 # Note: MMODEL includes a space before the model
@@ -40,8 +41,8 @@ echo "\maketitle" >> /home/$USER/Desktop/specs.tex
 # Now let's create the barcode
 # if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/$USER/Desktop/barcode.txt
 # Wrap bottom statement in an IF statement or maybe set this as a varable before
-# 02/14/2023 - Happy Valentines Day - if FLEN is less than 4 characters it's not a proper serial number, use mac address
-if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' || $FAMILY == 'Not Specified' || $FLEN -lt 4 ]]
+# 02/14/2023 - Happy Valentines Day - if SLEN is less than 4 characters it's not a proper serial number, use mac address
+if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' || $FAMILY == 'Not Specified' || $SLEN -lt 4 ]]
 	then
 		echo $FAMILY
 		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' >> /home/$USER/Desktop/barcode.txt
