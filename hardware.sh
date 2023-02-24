@@ -12,6 +12,7 @@ CPUMODEL=$(cat /proc/cpuinfo | grep -m 1 "model name" | cut -c 14-)
 VRAM=$(glxinfo | grep "Video memory")
 VLEN=`echo $VRAM | awk '{print length}'` # vram character length
 # Note: MMODEL includes a space before the model
+SDDRIVE=$(ls -l /dev/sd? | cut -c 43-)
 
 
 # update the system because the script might not work if old software is installed
@@ -95,7 +96,7 @@ sudo dmidecode -t 4 | grep "Thread Count" >> /home/$USER/Desktop/specs.tex
 echo "\section{RAM}" >> /home/$USER/Desktop/specs.tex
 #vmstat -sS M | grep "total memory" >> /home/$USER/Desktop/specs.tex
 #lshw -c memory | grep size >> /home/$USER/Desktop/specs.tex
-sudo lshw -short | grep "System Memory" | sed 's/^[^m]*memory//' >> /home/$USER/Desktop/specs.tex
+sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
 sudo dmidecode -t memory | grep "Maximum Capacity" >> /home/$USER/Desktop/specs.tex
 echo "\quad" >> /home/$USER/Desktop/specs.tex
@@ -123,13 +124,23 @@ if lshw -short | grep nvme; then
 	lshw -short | grep -m1 nvme | cut -c 17- >> /home/$USER/Desktop/specs.tex
 	echo "\newline" >> /home/$USER/Desktop/specs.tex
 fi
-if sudo smartctl -d ata -a -i /dev/sda | grep "Model Family"; then
-	sudo smartctl -d ata -a -i /dev/sda | grep "Model Family" >> /home/$USER/Desktop/specs.tex
+
+for SDDRIVE in $SDDRIVE; do
+	sudo smartctl -d ata -a -i $SDDRIVE | grep "Model Family" >> /home/$USER/Desktop/specs.tex
 	echo "\newline" >> /home/$USER/Desktop/specs.tex
-fi
-sudo smartctl -d ata -a -i /dev/sda | grep "Device Model" >> /home/$USER/Desktop/specs.tex
-echo "\newline" >> /home/$USER/Desktop/specs.tex
-sudo smartctl -d ata -a -i /dev/sda | grep "User Capacity" >> /home/$USER/Desktop/specs.tex
+	sudo smartctl -d ata -a -i $SDDRIVE | grep "Device Model" >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+	sudo smartctl -d ata -a -i $SDDRIVE | grep "User Capacity" >> /home/$USER/Desktop/specs.tex
+	echo "\newline" >> /home/$USER/Desktop/specs.tex
+done
+
+#if sudo smartctl -d ata -a -i /dev/sda | grep "Model Family"; then
+#	sudo smartctl -d ata -a -i /dev/sda | grep "Model Family" >> /home/$USER/Desktop/specs.tex
+#	echo "\newline" >> /home/$USER/Desktop/specs.tex
+#fi
+#sudo smartctl -d ata -a -i /dev/sda | grep "Device Model" >> /home/$USER/Desktop/specs.tex
+#echo "\newline" >> /home/$USER/Desktop/specs.tex
+#sudo smartctl -d ata -a -i /dev/sda | grep "User Capacity" >> /home/$USER/Desktop/specs.tex
 
 
 # detect CD/DVD drive
