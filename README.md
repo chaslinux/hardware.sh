@@ -1,5 +1,6 @@
 # hardware.sh
-Copyright 2022 Charles McColm <chaslinux@gmail.com>
+Copyright 2022 Charles McColm <chaslinux@gmail.com>, 
+with thanks to Alan Pope: https://github.com/popey for many improvements.
 
 This and all files are licensed under GPLv3, the GNU General Public License v3.0.
 
