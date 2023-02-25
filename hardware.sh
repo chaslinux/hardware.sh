@@ -48,7 +48,7 @@ printf '\\maketitle\n' >> /home/"$USER"/Desktop/specs.tex
 # if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/"$USER"/Desktop/barcode.txt
 # Wrap bottom statement in an IF statement or maybe set this as a varable before
 # 02/14/2023 - Happy Valentines Day - if SLEN is less than 4 characters it's not a proper serial number, use mac address
-if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" ]]
+if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIANO == "To be filled by O.E.M." ]]
 	then
 		echo "$FAMILY"
 		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' >> /home/"$USER"/Desktop/barcode.txt
