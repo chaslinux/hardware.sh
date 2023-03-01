@@ -13,6 +13,7 @@ VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 # Note: MMODEL includes a space before the model
 SDDRIVE=$(ls -1 /dev/sd?)
+EMMC=$(ls -l /dev/mmcblk*)
 
 # update the system because the script might not work if old software is installed
 sudo apt update && sudo apt -y upgrade
@@ -136,6 +137,13 @@ fi
 
 #detect hard drive
 printf '\\section{HardDrive}\n' >> /home/"$USER"/Desktop/specs.tex
+# check for an eMMC drive
+if [ $EMMC=="" ];
+	then
+		echo "No EMMC drive"
+	else
+		sudo fdisk -l | grep $EMMC | head -1 >> /home/"$USER"/Desktop/specs.tex
+fi
 if lshw -short | grep nvme; then
     {
 	lshw -short | grep -m1 nvme | cut -c 17- 
