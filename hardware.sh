@@ -14,6 +14,7 @@ VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 # Note: MMODEL includes a space before the model
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
+HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family")
 
 # update the system because the script might not work if old software is installed
 sudo apt update && sudo apt -y upgrade
@@ -153,8 +154,11 @@ fi
 
 for SDDRIVE in $SDDRIVE; do
 	{
-		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family"
-		printf '\\newline\n' 
+		if [ $HDDFAMILY !="" ];
+			then
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family"
+				printf '\\newline\n' 
+		fi
 		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" 
 		printf '\\newline\n' 
 		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity" 
