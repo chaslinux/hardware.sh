@@ -154,7 +154,7 @@ fi
 
 for SDDRIVE in $SDDRIVE; do
 	{
-		if [ $HDDFAMILY !="" ];
+		if [ ! -z "$HDDFAMILY" ];
 			then
 				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family"
 				printf '\\newline\n' 
