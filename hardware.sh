@@ -12,7 +12,8 @@ CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
 VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 # Note: MMODEL includes a space before the model
-SDDRIVE=$(ls -1 /dev/sd?)
+SDDRIVE=$(smartctl --scan | cut -c -8)
+#SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family")
 
@@ -156,14 +157,14 @@ for SDDRIVE in $SDDRIVE; do
 	{
 		if [ ! -z "$HDDFAMILY" ];
 			then
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family"
-				printf '\\newline\n' 
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/"$USER"/Desktop/specs.tex
+				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
 		fi
-		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" 
-		printf '\\newline\n' 
-		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity" 
-		printf '\\newline\n' 
-	} >> /home/"$USER"/Desktop/specs.tex
+		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model"  >> /home/"$USER"/Desktop/specs.tex
+		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/"$USER"/Desktop/specs.tex
+		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+	} 
 done
 
 #if sudo smartctl -d ata -a -i /dev/sda | grep "Model Family"; then
