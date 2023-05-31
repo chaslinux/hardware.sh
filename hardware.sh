@@ -12,8 +12,8 @@ CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
 VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 # Note: MMODEL includes a space before the model
-SDDRIVE=$(smartctl --scan | cut -c -8)
-#SDDRIVE=$(ls -1 /dev/sd?)
+#SDDRIVE=$(smartctl --scan | cut -c -8)
+SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family")
 
