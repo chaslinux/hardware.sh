@@ -2,6 +2,12 @@
 # Copyright 2022, 2023 Charles McColm, chaslinux@gmail.com
 # Licensed under GPLv3, the General Public License v3.0
 
+# Add some colour to the script
+WHITE='\033[1;37m'
+NC='\033[0m'
+LTGREEN='\033[1;32m'
+PURPLE='\033[0;35m'
+
 # Variables
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10-)
 SERIALNO=$(sudo dmidecode --string system-serial-number)
@@ -18,8 +24,10 @@ EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family")
 
 # update the system because the script might not work if old software is installed
+echo -e "${LTGREEN}*** ${WHITE}Running updates ! ${LTGREEN}*** ${NC}"
 sudo apt update && sudo apt -y upgrade
 
+echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation ! ${LTGREEN}*** ${NC}"
 # install necessary extra software
 sudo apt -y install smartmontools # for hard drives
 sudo apt -y install libcdio-utils # for cd-drives
@@ -30,6 +38,7 @@ sudo apt -y install barcode # to create barcodes
 sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
 sudo apt -y install texlive-pictures # more barcode handling
 
+echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGREEN}*** ${NC}"
 # create a latex document at /home/"$USER"/Desktop/specs.tex
 if [ ! -f /home/"$USER"/Desktop/specs.tex ]; then
 	echo "creating /home/$USER/Desktop/specs.tex"
@@ -51,6 +60,7 @@ printf '\\maketitle\n' >> /home/"$USER"/Desktop/specs.tex
 # if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/"$USER"/Desktop/barcode.txt
 # Wrap bottom statement in an IF statement or maybe set this as a varable before
 # 02/14/2023 - Happy Valentines Day - if SLEN is less than 4 characters it's not a proper serial number, use mac address
+echo -e "${LTGREEN}*** ${WHITE}Creating the barcode ! ${LTGREEN}*** ${NC}"
 if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be filled by O.E.M." ]]
 	then
 		echo "$FAMILY"
@@ -66,6 +76,7 @@ epspdf barcode.eps barcode.pdf
 pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
 
 # detect Model/Mfg information
+echo -e "${LTGREEN}*** ${WHITE}Detecting system information ! ${LTGREEN}*** ${NC}"
 echo "\section{Model}" >> /home/"$USER"/Desktop/specs.tex
 if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]
 	then
@@ -201,6 +212,7 @@ fi
 	sudo lshw -class sound | grep -m 1 product
 } >> /home/"$USER"/Desktop/specs.tex
 
+echo -e "${LTGREEN}*** ${WHITE}Detecting Laptop-specific hardware ! ${LTGREEN}*** ${NC}"
 if [ -d "/proc/acpi/button/lid" ]; then
 	# install necessary extra software
 	echo "\section{Laptop Specific}" >> /home/"$USER"/Desktop/specs.tex
@@ -212,7 +224,7 @@ if [ -d "/proc/acpi/button/lid" ]; then
 	xrandr | grep -m1 connected >> /home/"$USER"/Desktop/specs.tex
 fi
 
-
+echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
 printf '\\end{document}\n' >> /home/"$USER"/Desktop/specs.tex
 cd /home/"$USER"/Desktop || exit
 # the line below strips out any underscores _ from specs.tex
