@@ -174,7 +174,7 @@ for SDDRIVE in $SDDRIVE; do
 		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model"  >> /home/"$USER"/Desktop/specs.tex
 		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
 		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/"$USER"/Desktop/specs.tex
-		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex	
 	} 
 done
 
@@ -223,6 +223,10 @@ if [ -d "/proc/acpi/button/lid" ]; then
 	# display the resolution
 	xrandr | grep -m1 connected >> /home/"$USER"/Desktop/specs.tex
 fi
+
+# Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
+echo "\section{Operating System}" >> /home/"$USER"/Desktop/specs.tex
+lsb_release -a | grep "Description" >> /home/"$USER"/Desktop/specs.tex
 
 echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
 printf '\\end{document}\n' >> /home/"$USER"/Desktop/specs.tex
