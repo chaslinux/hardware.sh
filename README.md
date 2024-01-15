@@ -1,3 +1,5 @@
+![specsheet](https://github.com/chaslinux/hardware.sh/assets/97259120/dbe65ec3-b93d-4c59-9a7b-51e1db569c8e)
+
 # hardware.sh
 Copyright 2022 Charles McColm <chaslinux@gmail.com>, 
 with thanks to Alan Pope: https://github.com/popey for many improvements.
