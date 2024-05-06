@@ -243,4 +243,8 @@ cd /home/"$USER"/Desktop || exit
 rm specs.log specs.aux serial.pdf
 
 cp specs.pdf $SERIALNO.pdf
-smbclient //truenas/share -U "linuxuser" -c "put $SERIALNO.pdf $SERIALNO.pdf"
+if ping -c 1 -W 1 truenas ; then
+	smbclient //truenas/share -U "linuxuser" -c "put $SERIALNO.pdf $SERIALNO.pdf"
+else
+	echo "Done, this is not at The Working Centre, so exiting here."
+fi
