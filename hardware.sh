@@ -29,6 +29,7 @@ sudo apt update && sudo apt -y upgrade
 
 echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation ! ${LTGREEN}*** ${NC}"
 # install necessary extra software
+sudo apt -y install smbclient # so we can copy the serialno.pdf to our TrueNAS server
 sudo apt -y install smartmontools # for hard drives
 sudo apt -y install libcdio-utils # for cd-drives
 sudo apt -y install acpi # for power information on laptops
@@ -238,3 +239,6 @@ pdflatex specs.tex
 # lastly remove serial.pdf and other files once the specs.pdf is created
 cd /home/"$USER"/Desktop || exit
 rm specs.log specs.aux serial.pdf
+
+cp specs.pdf $SERIALNO.pdf
+smbclient //truenas/share -U "linuxuser" -c "put $SERIALNO.pdf $SERIALNO.pdf"
