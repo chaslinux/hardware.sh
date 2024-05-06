@@ -66,9 +66,11 @@ if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be 
 	then
 		echo "$FAMILY"
 		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' >> /home/"$USER"/Desktop/barcode.txt
+		SERIALNO=$(cat /sys/class/net/*/address | head -n 1 | sed 's/://g')
 	else
 		echo "$FAMILY"
 		sudo dmidecode -t 1 | grep "Serial" | cut -c 17- >> /home/"$USER"/Desktop/barcode.txt
+		SERIALNO=$(sudo dmidecode -t 1 | grep "Serial" | cut -c 17-)
 fi
 
 barcode -e 128 -i /home/"$USER"/Desktop/barcode.txt  -o /home/"$USER"/Desktop/barcode.eps
