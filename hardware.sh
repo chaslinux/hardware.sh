@@ -225,6 +225,10 @@ if [ -d "/proc/acpi/button/lid" ]; then
 	fi
 	# display the resolution
 	xrandr | grep -m1 connected >> /home/"$USER"/Desktop/specs.tex
+
+	# fix mouse cannot right or left click when laptop lid is closed
+	sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
+
 fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
@@ -240,7 +244,7 @@ pdflatex specs.tex
 
 # lastly remove serial.pdf and other files once the specs.pdf is created
 cd /home/"$USER"/Desktop || exit
-rm specs.log specs.aux serial.pdf
+rm specs.log specs.aux serial.pdf specs.tex
 
 cp specs.pdf $SERIALNO.pdf
 if ping -c 1 -W 1 truenas ; then
@@ -248,3 +252,7 @@ if ping -c 1 -W 1 truenas ; then
 else
 	echo "Done, this is not at The Working Centre, so exiting here."
 fi
+
+# Now remove the specs.pdf because we've created SERIALNO.PDF
+rm specs.pdf
+
