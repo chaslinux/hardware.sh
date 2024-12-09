@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2022, 2023 Charles McColm, chaslinux@gmail.com
+# Copyright 2022, 2023, 2024 Charles McColm, chaslinux@gmail.com
 # Licensed under GPLv3, the General Public License v3.0
 
 # Add some colour to the script
@@ -22,6 +22,7 @@ VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family")
+OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 
 # update the system because the script might not work if old software is installed
 echo -e "${LTGREEN}*** ${WHITE}Running updates ! ${LTGREEN}*** ${NC}"
@@ -233,7 +234,7 @@ fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
 echo "\section{Operating System}" >> /home/"$USER"/Desktop/specs.tex
-lsb_release -a | grep "Description" >> /home/"$USER"/Desktop/specs.tex
+echo $OSFAMILY $XDG_CURRENT_DESKTOP >> /home/"$USER"/Desktop/specs.tex
 
 echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
 printf '\\end{document}\n' >> /home/"$USER"/Desktop/specs.tex
