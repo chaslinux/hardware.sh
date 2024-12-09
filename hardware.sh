@@ -169,17 +169,23 @@ if lshw -short | grep nvme; then
 fi
 
 for SDDRIVE in $SDDRIVE; do
-	{
-		if [ ! -z "$HDDFAMILY" ];
-			then
+
+		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family")
+		if [ ! -z "$HDDFAMILY" ];	
+
+		then
 				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/"$USER"/Desktop/specs.tex
 				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model"  >> /home/"$USER"/Desktop/specs.tex
+				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/"$USER"/Desktop/specs.tex
+				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex	
+
+		else
+				echo "This is not actually a hard drive, nor an SSD, but a media drive."
 		fi
-		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model"  >> /home/"$USER"/Desktop/specs.tex
-		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
-		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/"$USER"/Desktop/specs.tex
-		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex	
-	} 
 done
 
 #if sudo smartctl -d ata -a -i /dev/sda | grep "Model Family"; then
