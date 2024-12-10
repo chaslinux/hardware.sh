@@ -8,8 +8,8 @@ This and all files are licensed under GPLv3, the GNU General Public License v3.0
 
 Script to for Ubuntu-based desktop Linux distributions to detect hardware on computers and output it to a PDF using latex.
 
-This script assumes a typical desktop install of Ubuntu/Kubuntu/Xubuntu/Lubuntu/Ubuntu Mate/Ubuntu Budgie. It's been tested on a few
-Xubuntu systems as of February 25, 2023.
+This script assumes a typical desktop install of Ubuntu or an Ubuntu derivative (like Linux Mint). It's been tested on dozens of systems 
+running Xubuntu and Linux Mint.
 
 Run the script by typing the next line in a terminal:
 ./hardware.sh
