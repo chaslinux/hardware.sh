@@ -21,7 +21,7 @@ VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 #SDDRIVE=$(smartctl --scan | cut -c -8)
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
-HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family")
+HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 
 # update the system because the script might not work if old software is installed
@@ -170,12 +170,12 @@ fi
 
 for SDDRIVE in $SDDRIVE; do
 
-		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family")
+		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
 		if [ ! -z "$HDDFAMILY" ];	
 
 		then
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/"$USER"/Desktop/specs.tex
-				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+#				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/"$USER"/Desktop/specs.tex
+#				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
 
 				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model"  >> /home/"$USER"/Desktop/specs.tex
 				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
