@@ -42,6 +42,66 @@ sudo apt -y install texlive-pictures # more barcode handling
 # For new benchmarking features
 sudo apt install pango1.0-tools sysbench glmark2 -y
 
+###################################################
+### This area is for the benchmarks development ###
+###################################################
+
+if [ -f /home/"$USER"/Desktop/sysbench.txt ]; then
+	echo "Removing sysbench.txt..."
+	rm /home/"$USER"/Desktop/sysbench.txt
+else
+	echo "No sysbench.txt file, creating one."
+fi
+
+if [ -f /home/"$USER"/Desktop/glmark2.txt ]; then
+	echo "Removing glmark2.txt..."
+	rm /home/"$USER"/Desktop/glmark2.txt
+else
+	echo "No glmark2.txt file, creating one."
+fi
+
+if [ -f /home/"$USER"/Desktop/sysbench.png ]; then
+	echo "Removing sysbench.png"
+	rm /home/"$USER"/Desktop/sysbench.png
+fi
+if [ -f /home/"$USER"/Desktop/glmark2.png ]; then
+	echo "Removing glmark2.png"
+	rm /home/"$USER"/Desktop/glmark2.png
+fi
+if [ -f /home/"$USER"/Desktop/sysbench.pdf ]; then
+	echo "Removing sysbench.pdf"
+	rm /home/"$USER"/Desktop/sysbench.pdf
+fi
+if [ -f /home/"$USER"/Desktop/glmark2.pdf ]; then
+	echo "Removing glmark2.pdf"
+	rm /home/"$USER"/Desktop/glmark2.pdf
+fi
+
+
+# create the sysbench text file
+echo -n "CPU: " > /home/"$USER"/Desktop/sysbench.txt
+echo "Now running sysbench... be patient for a few seconds..."
+sysbench cpu --cpu-max-prime=10000 run | grep "events per second" | cut -c 25- >> /home/"$USER"/Desktop/sysbench.txt
+
+# create the glmark2 text file
+echo -n "GLMark2: " > /home/"$USER"/Desktop/glmark2.txt
+echo "Now running glmark2... be patient for a few seconds..."
+glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> /home/"$USER"/Desktop/glmark2.txt
+
+# Now create the images to be incorporated into the PDF
+pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
+pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
+
+# Remove the text files
+rm /home/"$USER"/Desktop/glmark2.txt
+rm /home/"$USER"/Desktop/sysbench.txt
+
+# Convert sysbench.png and glmark2.png to PDFs and delete the png files
+convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.pdf
+convert /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.pdf
+rm /home/"$USER"/Desktop/sysbench.png
+rm /home/"$USER"/Desktop/glmark2.png
+
 echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGREEN}*** ${NC}"
 # create a latex document at /home/"$USER"/Desktop/specs.tex
 if [ ! -f /home/"$USER"/Desktop/specs.tex ]; then
@@ -101,6 +161,8 @@ fi
 	sudo dmidecode -t 1 | grep "Serial"
 	printf '\\newline\n' 
 	echo "\includegraphics{serial.pdf}" 
+	echo "\includegraphics{sysbench.pdf}" 
+	echo "\includegraphics{glmark2.pdf}"
 	printf '\\newline\n' 
 } >> /home/"$USER"/Desktop/specs.tex
 
@@ -118,6 +180,7 @@ rm barcode.txt barcode.eps barcode.pdf
 	sudo dmidecode -t 4 | grep "Core Count"
 	printf '\\quad\n'
 	sudo dmidecode -t 4 | grep "Thread Count"
+	printf '\\newline\n' 
 } >> /home/"$USER"/Desktop/specs.tex
 
 #detect RAM information
@@ -248,47 +311,6 @@ echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
 printf '\\end{document}\n' >> /home/"$USER"/Desktop/specs.tex
 cd /home/"$USER"/Desktop || exit
 
-###################################################
-### This area is for the benchmarks development ###
-###################################################
-
-if [ -f /home/"$USER"/Desktop/sysbench.txt ]; then
-	echo "Removing sysbench.txt..."
-	rm /home/"$USER"/Desktop/sysbench.txt
-else
-	echo "No sysbench.txt file, creating one."
-fi
-
-if [ -f /home/"$USER"/Desktop/glmark2.txt ]; then
-	echo "Removing glmark2.txt..."
-	rm /home/"$USER"/Desktop/glmark2.txt
-else
-	echo "No glmark2.txt file, creating one."
-fi
-
-if [ -f /home/"$USER"/Desktop/sysbench.png ]; then
-	echo "Removing sysbench.png"
-	rm /home/"$USER"/Desktop/sysbench.png
-fi
-if [ -f /home/"$USER"/Desktop/glmark2.png ]; then
-	echo "Removing glmark2.png"
-	rm /home/"$USER"/Desktop/glmark2.png
-fi
-
-
-# create the sysbench text file
-echo -n "CPU: " > /home/"$USER"/Desktop/sysbench.txt
-echo "Now running sysbench... be patient for a few seconds..."
-sysbench cpu --cpu-max-prime=10000 run | grep "events per second" | cut -c 25- >> /home/"$USER"/Desktop/sysbench.txt
-
-# create the glmark2 text file
-echo -n "GLMark2: " > /home/"$USER"/Desktop/glmark2.txt
-echo "Now running glmark2... be patient for a few seconds..."
-glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> /home/"$USER"/Desktop/glmark2.txt
-
-# Now create the images to be incorporated into the PDF
-pango-view -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
-pango-view -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
 
 ##########################
 ### Now create the PDF ###
@@ -300,7 +322,7 @@ pdflatex specs.tex
 
 # lastly remove serial.pdf and other files once the specs.pdf is created
 cd /home/"$USER"/Desktop || exit
-rm specs.log specs.aux serial.pdf specs.tex
+rm specs.log specs.aux serial.pdf specs.tex sysbench.pdf glmark2.pdf
 
 cp specs.pdf $SERIALNO.pdf
 if ping -c 1 -W 1 truenas ; then
