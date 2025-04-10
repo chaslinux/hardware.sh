@@ -68,15 +68,6 @@ if [ -f /home/"$USER"/Desktop/glmark2.png ]; then
 	echo "Removing glmark2.png"
 	rm /home/"$USER"/Desktop/glmark2.png
 fi
-if [ -f /home/"$USER"/Desktop/sysbench.pdf ]; then
-	echo "Removing sysbench.pdf"
-	rm /home/"$USER"/Desktop/sysbench.pdf
-fi
-if [ -f /home/"$USER"/Desktop/glmark2.pdf ]; then
-	echo "Removing glmark2.pdf"
-	rm /home/"$USER"/Desktop/glmark2.pdf
-fi
-
 
 # create the sysbench text file
 echo -n "CPU: " > /home/"$USER"/Desktop/sysbench.txt
