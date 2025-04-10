@@ -40,7 +40,7 @@ sudo apt -y install barcode # to create barcodes
 sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
 sudo apt -y install texlive-pictures # more barcode handling
 # For new benchmarking features
-sudo apt install pango1.0-tools sysbench glmark2 -y
+sudo apt install pango1.0-tools sysbench glmark2 imagemagick -y
 
 ###################################################
 ### This area is for the benchmarks development ###
