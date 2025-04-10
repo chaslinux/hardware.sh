@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2022, 2023, 2024 Charles McColm, chaslinux@gmail.com
+# Copyright 2022, 2023, 2024, 2025 Charles McColm, chaslinux@gmail.com
 # Licensed under GPLv3, the General Public License v3.0
 
 # Add some colour to the script
@@ -39,6 +39,8 @@ sudo apt -y install barcode # to create barcodes
 # Note: I don't like installing all these extra tools for one tool.
 sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
 sudo apt -y install texlive-pictures # more barcode handling
+# For new benchmarking features
+sudo apt install pango1.0-tools sysbench glmark2 -y
 
 echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGREEN}*** ${NC}"
 # create a latex document at /home/"$USER"/Desktop/specs.tex
@@ -245,6 +247,53 @@ echo $OSFAMILY $XDG_CURRENT_DESKTOP >> /home/"$USER"/Desktop/specs.tex
 echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
 printf '\\end{document}\n' >> /home/"$USER"/Desktop/specs.tex
 cd /home/"$USER"/Desktop || exit
+
+###################################################
+### This area is for the benchmarks development ###
+###################################################
+
+if [ -f /home/"$USER"/Desktop/sysbench.txt ]; then
+	echo "Removing sysbench.txt..."
+	rm /home/"$USER"/Desktop/sysbench.txt
+else
+	echo "No sysbench.txt file, creating one."
+fi
+
+if [ -f /home/"$USER"/Desktop/glmark2.txt ]; then
+	echo "Removing glmark2.txt..."
+	rm /home/"$USER"/Desktop/glmark2.txt
+else
+	echo "No glmark2.txt file, creating one."
+fi
+
+if [ -f /home/"$USER"/Desktop/sysbench.png ]; then
+	echo "Removing sysbench.png"
+	rm /home/"$USER"/Desktop/sysbench.png
+fi
+if [ -f /home/"$USER"/Desktop/glmark2.png ]; then
+	echo "Removing glmark2.png"
+	rm /home/"$USER"/Desktop/glmark2.png
+fi
+
+
+# create the sysbench text file
+echo -n "CPU: " > /home/"$USER"/Desktop/sysbench.txt
+echo "Now running sysbench... be patient for a few seconds..."
+sysbench cpu --cpu-max-prime=10000 run | grep "events per second" | cut -c 25- >> /home/"$USER"/Desktop/sysbench.txt
+
+# create the glmark2 text file
+echo -n "GLMark2: " > /home/"$USER"/Desktop/glmark2.txt
+echo "Now running glmark2... be patient for a few seconds..."
+glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> /home/"$USER"/Desktop/glmark2.txt
+
+# Now create the images to be incorporated into the PDF
+pango-view -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
+pango-view -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
+
+##########################
+### Now create the PDF ###
+##########################
+
 # the line below strips out any underscores _ from specs.tex
 sed -i s/_//g specs.tex
 pdflatex specs.tex
