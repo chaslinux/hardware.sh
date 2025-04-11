@@ -23,6 +23,17 @@ SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
+OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
+
+### There is a bug in the ghostscript included with Imagemagick in Linux Mint 21.3
+### that prevents convert from converting images to PDFs. It's a security issue so
+### the team blocked using ImageMagick to create PDFs in policy.xml.
+### The following lines comment out that line in policy.xml so we can convert our
+### images to PDF. At the end of the file we remove the comment.
+
+if [ $OSRELEASE=="21.3" ]
+	sudo sed -i '/<policy domain="coder" rights="none" pattern="PDF" />/c\<!- <policy domain="coder" rights="none" pattern="PDF" />' 
+fi
 
 # update the system because the script might not work if old software is installed
 echo -e "${LTGREEN}*** ${WHITE}Running updates ! ${LTGREEN}*** ${NC}"
@@ -325,3 +336,8 @@ fi
 # Now remove the specs.pdf because we've created SERIALNO.PDF
 rm specs.pdf
 
+### Now re-enable the PDF blocking policy in Linux Mint 21.3
+
+if [ $OSRELEASE=="21.3" ]
+	sudo sed -i '/<!- <policy domain="coder" rights="none" pattern="PDF" />/c\<policy domain="coder" rights="none" pattern="PDF" />' 
+fi
