@@ -31,8 +31,8 @@ OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 ### The following lines comment out that line in policy.xml so we can convert our
 ### images to PDF. At the end of the file we remove the comment.
 
-if [ $OSRELEASE=="21.3" ]
-	sudo sed -i '/<policy domain="coder" rights="none" pattern="PDF" \>/d' /etc/ImageMagick-6/policy.xml 
+if [ $OSRELEASE=="21.3" ]; then
+	sudo sed -i '/<policy domain="coder" rights="none" pattern="PDF" \/>/d' /etc/ImageMagick-6/policy.xml 
 fi
 
 # update the system because the script might not work if old software is installed
@@ -337,7 +337,6 @@ fi
 rm specs.pdf
 
 ### Now re-enable the PDF blocking policy in Linux Mint 21.3
-
-if [ $OSRELEASE=="21.3" ]
-	sudo sed -i "`wc -l < /etc/ImageMagic-6/policy.xml`i\\<policy domain="coder" rights="none" pattern="PDF" />\\" /etc/ImageMagic-6/policy.xml 
+if [ $OSRELEASE=="21.3" ]; then
+	sudo sed -i "`wc -l < /etc/ImageMagic-6/policy.xml`i\\<policy domain="coder" rights="none" pattern="PDF" \/>\\" /etc/ImageMagic-6/policy.xml 
 fi
