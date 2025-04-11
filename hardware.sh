@@ -339,5 +339,5 @@ rm specs.pdf
 ### Now re-enable the PDF blocking policy in Linux Mint 21.3
 if [ $OSRELEASE=="21.3" ]; then
 	POLICYCOUNT=$(wc -l < /etc/ImageMagick-6/policy.xml)
-	sudo sed -i "`$POLICYCOUNT`i\\<policy domain="coder" rights="none" pattern="PDF" />\\" /etc/ImageMagick-6/policy.xml
+	sudo sed -i '`$POLICYCOUNT`i\\<policy domain="coder" rights="none" pattern="PDF" />\\' /etc/ImageMagick-6/policy.xml
 fi
