@@ -9,6 +9,7 @@ LTGREEN='\033[1;32m'
 PURPLE='\033[0;35m'
 
 # Variables
+CURRENTDIR=$(pwd)
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10-)
 SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
@@ -52,6 +53,7 @@ sudo apt -y install texlive-extra-utils # So we can create convert eps barcode t
 sudo apt -y install texlive-pictures # more barcode handling
 # For new benchmarking features
 sudo apt install pango1.0-tools sysbench glmark2 imagemagick -y
+sudo apt install img2pdf -y
 
 ###################################################
 ### This area is for the benchmarks development ###
@@ -91,18 +93,32 @@ echo "Now running glmark2... be patient for a few seconds..."
 glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> /home/"$USER"/Desktop/glmark2.txt
 
 # Now create the images to be incorporated into the PDF
+pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/title.png $CURRENTDIR/bench-title.txt
 pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
 pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
+
+# Join the PNG images together
+convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
+convert /home/"$USER"/Desktop/title.png /home/"$USER"/Desktop/benchmarks.png -append /home/"$USER"/Desktop/Benchmarks.png
+convert -bordercolor black -border 2 /home/"$USER"/Desktop/Benchmarks.png /home/"$USER"/Desktop/results.png
 
 # Remove the text files
 rm /home/"$USER"/Desktop/glmark2.txt
 rm /home/"$USER"/Desktop/sysbench.txt
 
-# Convert sysbench.png and glmark2.png to PDFs and delete the png files
-convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.pdf
-convert /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.pdf
+# Make one PNG file
+convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
+
+# Convert results.png benchmark to a PDF file to imported into specs.tex
+img2pdf /home/"$USER"/Desktop/results.png -o /home/"$USER"/Desktop/results.pdf
+
+# Remove the images that we no longer need because they are one PDF -- results.pdf
 rm /home/"$USER"/Desktop/sysbench.png
 rm /home/"$USER"/Desktop/glmark2.png
+rm /home/"$USER"/Desktop/results.png 
+rm /home/"$USER"/Desktop/Benchmarks.png
+rm /home/"$USER"/Desktop/benchmarks.png
+rm /home/"$USER"/Desktop/title.png
 
 echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGREEN}*** ${NC}"
 # create a latex document at /home/"$USER"/Desktop/specs.tex
@@ -163,8 +179,7 @@ fi
 	sudo dmidecode -t 1 | grep "Serial"
 	printf '\\newline\n' 
 	echo "\includegraphics{serial.pdf}" 
-	echo "\includegraphics{sysbench.pdf}" 
-	echo "\includegraphics{glmark2.pdf}"
+	echo "\includegraphics{results.pdf}"
 	printf '\\newline\n' 
 } >> /home/"$USER"/Desktop/specs.tex
 
@@ -334,7 +349,8 @@ else
 fi
 
 # Now remove the specs.pdf because we've created SERIALNO.PDF
-rm specs.pdf
+rm specs.pdf 
+rm results.pdf
 
 ### Now re-enable the PDF blocking policy in Linux Mint 21.3
 if [ $OSRELEASE=="21.3" ]; then
