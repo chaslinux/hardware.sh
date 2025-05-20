@@ -143,7 +143,7 @@ printf '\\maketitle\n' >> /home/"$USER"/Desktop/specs.tex
 # Wrap bottom statement in an IF statement or maybe set this as a varable before
 # 02/14/2023 - Happy Valentines Day - if SLEN is less than 4 characters it's not a proper serial number, use mac address
 echo -e "${LTGREEN}*** ${WHITE}Creating the barcode ! ${LTGREEN}*** ${NC}"
-if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be filled by O.E.M." || $SERIALNO == "Default string" ]]
+if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be filled by O.E.M." || $SERIALNO == "Default string" || $SERIALNO =~ [^A-Za-z0-9] ]]
 	then    # set the serial number to the mac address if any of the above apply
 		echo "$FAMILY"
 		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' >> /home/"$USER"/Desktop/barcode.txt
