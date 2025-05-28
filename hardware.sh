@@ -25,6 +25,12 @@ EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
+RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
+GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
+PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16-)
+PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16-)
+PRODUCT="$PROD1 $PROD2"
+
 
 ### There is a bug in the ghostscript included with Imagemagick in Linux Mint 21.3
 ### that prevents convert from converting images to PDFs. It's a security issue so
@@ -97,6 +103,16 @@ pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/title.png $
 pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
 pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
 
+pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mtitle.png $CURRENTDIR/bench-title.txt
+pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/sysbench.txt
+pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mglmark2.png /home/"$USER"/Desktop/glmark2.txt
+
+# Make the small benchmark image
+convert /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/mglmark2.png +append /home/"$USER"/Desktop/mbenchmarks.png
+convert /home/"$USER"/Desktop/mtitle.png /home/"$USER"/Desktop/mbenchmarks.png -append /home/"$USER"/Desktop/mBenchmarks.png
+convert -bordercolor black -border 2 /home/"$USER"/Desktop/mBenchmarks.png /home/"$USER"/Desktop/mresults.png
+convert /home/"$USER"/Desktop/mresults.png /home/"$USER"/Desktop/mresults.pdf
+
 # Join the PNG images together
 convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
 convert /home/"$USER"/Desktop/title.png /home/"$USER"/Desktop/benchmarks.png -append /home/"$USER"/Desktop/Benchmarks.png
@@ -106,19 +122,19 @@ convert -bordercolor black -border 2 /home/"$USER"/Desktop/Benchmarks.png /home/
 rm /home/"$USER"/Desktop/glmark2.txt
 rm /home/"$USER"/Desktop/sysbench.txt
 
+# Remove the small image files
+rm /home/"$USER"/Desktop/mtitle.png
+rm /home/"$USER"/Desktop/mglmark2.png
+rm /home/"$USER"/Desktop/msysbench.png
+rm /home/"$USER"/Desktop/mBenchmarks.png
+rm /home/"$USER"/Desktop/mbenchmarks.png
+rm /home/"$USER"/Desktop/mresults.png
+
 # Make one PNG file
 convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
 
 # Convert results.png benchmark to a PDF file to imported into specs.tex
 img2pdf /home/"$USER"/Desktop/results.png -o /home/"$USER"/Desktop/results.pdf
-
-# Remove the images that we no longer need because they are one PDF -- results.pdf
-rm /home/"$USER"/Desktop/sysbench.png
-rm /home/"$USER"/Desktop/glmark2.png
-rm /home/"$USER"/Desktop/results.png 
-rm /home/"$USER"/Desktop/Benchmarks.png
-rm /home/"$USER"/Desktop/benchmarks.png
-rm /home/"$USER"/Desktop/title.png
 
 echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGREEN}*** ${NC}"
 # create a latex document at /home/"$USER"/Desktop/specs.tex
@@ -337,10 +353,6 @@ cd /home/"$USER"/Desktop || exit
 sed -i s/_//g specs.tex
 pdflatex specs.tex
 
-# lastly remove serial.pdf and other files once the specs.pdf is created
-cd /home/"$USER"/Desktop || exit
-rm specs.log specs.aux serial.pdf specs.tex sysbench.pdf glmark2.pdf
-
 cp specs.pdf $SERIALNO.pdf
 if ping -c 1 -W 1 truenas ; then
 	smbclient //truenas/share -U "linuxuser" -c "put $SERIALNO.pdf $SERIALNO.pdf"
@@ -348,12 +360,82 @@ else
 	echo "Done, this is not at The Working Centre, so exiting here."
 fi
 
-# Now remove the specs.pdf because we've created SERIALNO.PDF
-rm specs.pdf 
-rm results.pdf
-
 ### Now re-enable the PDF blocking policy in Linux Mint 21.3
 if [ $OSRELEASE=="21.3" ]; then
 	POLICYCOUNT=$(wc -l < /etc/ImageMagick-6/policy.xml)
 	sudo sed -i "$POLICYCOUNT i\\<policy domain=\"coder\" rights=\"none\" pattern=\"PDF\" />\\" /etc/ImageMagick-6/policy.xml
 fi
+
+echo "\documentclass{article}" >> small_display.tex
+echo "\usepackage{blindtext}" >> small_display.tex
+echo "\usepackage{mdframed}" >> small_display.tex
+echo "\usepackage[paperheight=5.0in,paperwidth=5.0in,margin=0.15in,heightrounded,showframe]{geometry}"  >> small_display.tex
+echo "\usepackage{parskip}"  >> small_display.tex
+echo "\usepackage{graphicx}" >> small_display.tex
+echo "\usepackage[T1]{fontenc}" >> small_display.tex
+
+echo "\begin{document}" >> small_display.tex
+echo "\begin{table}" >> small_display.tex
+echo "\end{table}" >> small_display.tex
+echo "\begin{center}" >> small_display.tex
+echo "$PRODUCT" >> small_display.tex
+echo "\end{center}" >> small_display.tex
+echo "\begin{center}" >> small_display.tex
+echo "\includegraphics{serial.pdf}" >> small_display.tex
+echo "\end{center}" >> small_display.tex
+#echo "\newline" >> small_display.tex
+# echo "\newline" >> small_display.tex
+echo "\includegraphics{mresults.pdf}" >> small_display.tex
+echo "\newline" >> small_display.tex
+echo "\newline" >> small_display.tex
+echo "$CPUMODEL" >> small_display.tex
+echo "\newline" >> small_display.tex
+echo "$RAMSIZE" >> small_display.tex
+echo "\newline" >> small_display.tex
+echo "$GRAPHICS" >> small_display.tex
+echo "\newline" >> small_display.tex
+if [ $EMMC=="" ];
+	then
+		echo "No EMMC drive"
+	else
+		sudo fdisk -l | grep $EMMC | head -1 >> /home/"$USER"/Desktop/small_display.tex
+fi
+if lshw -short | grep nvme; then
+    {
+	lshw -short | grep -m1 nvme | cut -c 17- 
+	echo "\newline" 
+	} >> /home/"$USER"/Desktop/small_display.tex
+fi
+
+for SDDRIVE in $SDDRIVE; do
+		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
+		if [ ! -z "$HDDFAMILY" ];	
+
+		then
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | cut -c 14- >> /home/"$USER"/Desktop/small_display.tex
+				echo "\newline" >> /home/"$USER"/Desktop/small_display.tex
+		else
+				echo "This is not actually a hard drive, nor an SSD, but a media drive."
+		fi
+done
+echo "\end{document}" >> small_display.tex
+pdflatex small_display.tex
+
+# lastly remove serial.pdf and other files once the specs.pdf is created
+cd /home/"$USER"/Desktop || exit
+rm specs.log specs.aux serial.pdf specs.tex sysbench.pdf glmark2.pdf
+# Remove the images that we no longer need because they are one PDF -- results.pdf
+rm /home/"$USER"/Desktop/sysbench.png
+rm /home/"$USER"/Desktop/glmark2.png
+rm /home/"$USER"/Desktop/results.png 
+rm /home/"$USER"/Desktop/Benchmarks.png
+rm /home/"$USER"/Desktop/benchmarks.png
+rm /home/"$USER"/Desktop/mresults.pdf
+rm /home/"$USER"/Desktop/small_display.tex
+rm /home/"$USER"/Desktop/small_display.log
+rm /home/"$USER"/Desktop/small_display.aux
+rm /home/"$USER"/Desktop/title.png
+# Now remove the specs.pdf because we've created SERIALNO.PDF
+rm specs.pdf 
+rm results.pdf
+
