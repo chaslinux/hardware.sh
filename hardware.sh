@@ -53,6 +53,7 @@ sudo apt -y install smartmontools # for hard drives
 sudo apt -y install libcdio-utils # for cd-drives
 sudo apt -y install acpi # for power information on laptops
 sudo apt -y install texlive-latex-base # to make pdfs
+sudo apt -y install texlive-latex-extra # needed for changes on 05/28/2025
 sudo apt -y install barcode # to create barcodes
 # Note: I don't like installing all these extra tools for one tool.
 sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
