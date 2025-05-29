@@ -373,12 +373,15 @@ echo "\usepackage[paperheight=5.0in,paperwidth=5.0in,margin=0.15in,heightrounded
 echo "\usepackage{parskip}"  >> small_display.tex
 echo "\usepackage{graphicx}" >> small_display.tex
 echo "\usepackage[T1]{fontenc}" >> small_display.tex
+echo "\usepackage{tgbonum}" >> small_display.tex
 
 echo "\begin{document}" >> small_display.tex
 echo "\begin{table}" >> small_display.tex
 echo "\end{table}" >> small_display.tex
 echo "\begin{center}" >> small_display.tex
+echo "{\fontfamily{qcr}\selectfont" >> small_display.tex
 echo "$PRODUCT" >> small_display.tex
+echo "}" >> small_display.tex
 echo "\end{center}" >> small_display.tex
 echo "\begin{center}" >> small_display.tex
 echo "\includegraphics{serial.pdf}" >> small_display.tex
@@ -388,6 +391,7 @@ echo "\end{center}" >> small_display.tex
 echo "\includegraphics{mresults.pdf}" >> small_display.tex
 echo "\newline" >> small_display.tex
 echo "\newline" >> small_display.tex
+echo "{\fontfamily{put}\selectfont" >> small_display.tex
 echo "$CPUMODEL" >> small_display.tex
 echo "\newline" >> small_display.tex
 echo "$RAMSIZE" >> small_display.tex
@@ -418,6 +422,7 @@ for SDDRIVE in $SDDRIVE; do
 				echo "This is not actually a hard drive, nor an SSD, but a media drive."
 		fi
 done
+echo "}" >> small_display.tex
 echo "\end{document}" >> small_display.tex
 pdflatex small_display.tex
 
