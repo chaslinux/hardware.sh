@@ -30,6 +30,7 @@ GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
 PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16-)
 PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16-)
 PRODUCT="$PROD1 $PROD2"
+NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 
 
 ### There is a bug in the ghostscript included with Imagemagick in Linux Mint 21.3
@@ -312,7 +313,8 @@ fi
 #detect network card information
 {
 	echo "\section{Network}" 
-	sudo lshw -class network | grep product
+#	sudo lshw -class network | grep product
+	echo "$NETWORK"
 } >> /home/"$USER"/Desktop/specs.tex
 
 #detect sound card information
@@ -424,6 +426,7 @@ for SDDRIVE in $SDDRIVE; do
 		fi
 done
 echo "}" >> small_display.tex
+echo "$NETWORK" >> small_display.tex
 echo "\end{document}" >> small_display.tex
 pdflatex small_display.tex
 
