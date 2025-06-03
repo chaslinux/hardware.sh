@@ -369,18 +369,32 @@ if [ $OSRELEASE=="21.3" ]; then
 	sudo sed -i "$POLICYCOUNT i\\<policy domain=\"coder\" rights=\"none\" pattern=\"PDF\" />\\" /etc/ImageMagick-6/policy.xml
 fi
 
-echo "\documentclass{article}" >> small_display.tex
-echo "\usepackage{blindtext}" >> small_display.tex
-echo "\usepackage{mdframed}" >> small_display.tex
-echo "\usepackage[paperheight=5.0in,paperwidth=5.0in,margin=0.15in,heightrounded,showframe]{geometry}"  >> small_display.tex
-echo "\usepackage{parskip}"  >> small_display.tex
-echo "\usepackage{graphicx}" >> small_display.tex
-echo "\usepackage[T1]{fontenc}" >> small_display.tex
-echo "\usepackage{tgbonum}" >> small_display.tex
+cat << END >> small_display.tex
+\documentclass{article}
+\usepackage{blindtext}
+\usepackage{mdframed}
+\usepackage[paperheight=5.0in,paperwidth=5.0in,margin=0.15in,heightrounded,showframe]{geometry}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{tgbonum}
+\usepackage{ntheorem}
 
-echo "\begin{document}" >> small_display.tex
-echo "\begin{table}" >> small_display.tex
-echo "\end{table}" >> small_display.tex
+\begin{document}
+
+\theoremstyle{nonumberplain}
+\newmdtheoremenv[%
+  backgroundcolor=white,
+  linecolor=white,
+  linewidth=2pt,
+  topline=false,
+  rightline=false,
+  leftline=false]{whitebox}{}
+
+\begin{whitebox}
+END
+
 echo "\begin{center}" >> small_display.tex
 echo "{\fontfamily{qcr}\selectfont" >> small_display.tex
 echo "$PRODUCT" >> small_display.tex
@@ -427,6 +441,7 @@ for SDDRIVE in $SDDRIVE; do
 done
 echo "}" >> small_display.tex
 echo "$NETWORK" >> small_display.tex
+echo "\end{whitebox}" >> small_display.tex
 echo "\end{document}" >> small_display.tex
 pdflatex small_display.tex
 
