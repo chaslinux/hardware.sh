@@ -463,3 +463,7 @@ rm /home/"$USER"/Desktop/title.png
 rm specs.pdf 
 rm results.pdf
 
+if [ -f /home/$USER/Desktop/small_display.thm ]; then
+	rm /home/$USER/Desktop/small_display.thm
+fi
+
