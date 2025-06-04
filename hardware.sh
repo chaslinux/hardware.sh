@@ -172,7 +172,7 @@ if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be 
 		SERIALNO=$(sudo dmidecode -t 1 | grep "Serial" | cut -c 17-)
 fi
 
-barcode -e "39" -g "144x72" -E -i /home/"$USER"/Desktop/barcode.txt  -o /home/"$USER"/Desktop/barcode.eps
+barcode -e "128" -g "144x72" -E -i /home/"$USER"/Desktop/barcode.txt  -o /home/"$USER"/Desktop/barcode.eps
 cd /home/"$USER"/Desktop || exit
 epspdf barcode.eps barcode.pdf
 pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
