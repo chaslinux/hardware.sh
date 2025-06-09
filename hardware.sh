@@ -413,7 +413,7 @@ echo "\includegraphics{serial.pdf}" >> small_display.tex
 echo "\end{center}" >> small_display.tex
 #echo "\newline" >> small_display.tex
 # echo "\newline" >> small_display.tex
-echo "\includegraphics{mresults.pdf}" >> small_display.tex
+echo "\includegraphics{results.pdf}" >> small_display.tex
 echo "\newline" >> small_display.tex
 echo "\newline" >> small_display.tex
 echo "{\fontfamily{put}\selectfont" >> small_display.tex
