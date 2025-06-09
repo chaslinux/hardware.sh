@@ -108,15 +108,15 @@ glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep 
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/title.png $CURRENTDIR/bench-title.txt
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
-pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mtitle.png $CURRENTDIR/bench-title.txt
-pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/sysbench.txt
-pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mglmark2.png /home/"$USER"/Desktop/glmark2.txt
-
+# pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mtitle.png $CURRENTDIR/bench-title.txt
+# pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/sysbench.txt
+# pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mglmark2.png /home/"$USER"/Desktop/glmark2.txt
+ 
 # Make the small benchmark image
-convert /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/mglmark2.png +append /home/"$USER"/Desktop/mbenchmarks.png
-convert /home/"$USER"/Desktop/mtitle.png /home/"$USER"/Desktop/mbenchmarks.png -append /home/"$USER"/Desktop/mBenchmarks.png
-convert -bordercolor black -border 2 /home/"$USER"/Desktop/mBenchmarks.png /home/"$USER"/Desktop/mresults.png
-convert /home/"$USER"/Desktop/mresults.png /home/"$USER"/Desktop/mresults.pdf
+# convert /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/mglmark2.png +append /home/"$USER"/Desktop/mbenchmarks.png
+# convert /home/"$USER"/Desktop/mtitle.png /home/"$USER"/Desktop/mbenchmarks.png -append /home/"$USER"/Desktop/mBenchmarks.png
+# convert -bordercolor black -border 2 /home/"$USER"/Desktop/mBenchmarks.png /home/"$USER"/Desktop/mresults.png
+# convert /home/"$USER"/Desktop/mresults.png /home/"$USER"/Desktop/mresults.pdf
 
 # Join the PNG images together
 # convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
@@ -131,12 +131,12 @@ rm /home/"$USER"/Desktop/glmark2.txt
 rm /home/"$USER"/Desktop/sysbench.txt
 
 # Remove the small image files
-rm /home/"$USER"/Desktop/mtitle.png
-rm /home/"$USER"/Desktop/mglmark2.png
-rm /home/"$USER"/Desktop/msysbench.png
-rm /home/"$USER"/Desktop/mBenchmarks.png
-rm /home/"$USER"/Desktop/mbenchmarks.png
-rm /home/"$USER"/Desktop/mresults.png
+# rm /home/"$USER"/Desktop/mtitle.png
+# rm /home/"$USER"/Desktop/mglmark2.png
+# rm /home/"$USER"/Desktop/msysbench.png
+# rm /home/"$USER"/Desktop/mBenchmarks.png
+# rm /home/"$USER"/Desktop/mbenchmarks.png
+# rm /home/"$USER"/Desktop/mresults.png
 rm /home/"$USER"/Desktop/sysbenchmark.png
 rm /home/"$USER"/Desktop/glmark2mark.png
 
