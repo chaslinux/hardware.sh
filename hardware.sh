@@ -52,7 +52,7 @@ PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16-)
 PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16-)
 PRODUCT="$PROD1 $PROD2"
 NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
-echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU single-core and multi-core performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
+echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
 SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
 MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
 
@@ -108,35 +108,18 @@ glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep 
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/title.png $CURRENTDIR/bench-title.txt
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
-# pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mtitle.png $CURRENTDIR/bench-title.txt
-# pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/sysbench.txt
-# pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mglmark2.png /home/"$USER"/Desktop/glmark2.txt
- 
-# Make the small benchmark image
-# convert /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/mglmark2.png +append /home/"$USER"/Desktop/mbenchmarks.png
-# convert /home/"$USER"/Desktop/mtitle.png /home/"$USER"/Desktop/mbenchmarks.png -append /home/"$USER"/Desktop/mBenchmarks.png
-# convert -bordercolor black -border 2 /home/"$USER"/Desktop/mBenchmarks.png /home/"$USER"/Desktop/mresults.png
-# convert /home/"$USER"/Desktop/mresults.png /home/"$USER"/Desktop/mresults.pdf
 
 # Join the PNG images together
-# convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
 convert /home/"$USER"/Desktop/sysbench.png +append /home/"$USER"/Desktop/sysbenchmark.png
 convert /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/glmark2mark.png
 convert /home/"$USER"/Desktop/sysbenchmark.png /home/"$USER"/Desktop/glmark2mark.png -append /home/"$USER"/Desktop/Benchmarks.png
-# convert /home/"$USER"/Desktop/title.png /home/"$USER"/Desktop/benchmarks.png -append /home/"$USER"/Desktop/Benchmarks.png
 convert -bordercolor black -border 2 /home/"$USER"/Desktop/Benchmarks.png /home/"$USER"/Desktop/results.png
 
 # Remove the text files
 rm /home/"$USER"/Desktop/glmark2.txt
 rm /home/"$USER"/Desktop/sysbench.txt
 
-# Remove the small image files
-# rm /home/"$USER"/Desktop/mtitle.png
-# rm /home/"$USER"/Desktop/mglmark2.png
-# rm /home/"$USER"/Desktop/msysbench.png
-# rm /home/"$USER"/Desktop/mBenchmarks.png
-# rm /home/"$USER"/Desktop/mbenchmarks.png
-# rm /home/"$USER"/Desktop/mresults.png
+# Remove the temporary image files
 rm /home/"$USER"/Desktop/sysbenchmark.png
 rm /home/"$USER"/Desktop/glmark2mark.png
 
@@ -295,15 +278,6 @@ for SDDRIVE in $SDDRIVE; do
 				echo "This is not actually a hard drive, nor an SSD, but a media drive."
 		fi
 done
-
-#if sudo smartctl -d ata -a -i /dev/sda | grep "Model Family"; then
-#	sudo smartctl -d ata -a -i /dev/sda | grep "Model Family" >> /home/"$USER"/Desktop/specs.tex
-#	printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
-#fi
-#sudo smartctl -d ata -a -i /dev/sda | grep "Device Model" >> /home/"$USER"/Desktop/specs.tex
-#printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
-#sudo smartctl -d ata -a -i /dev/sda | grep "User Capacity" >> /home/"$USER"/Desktop/specs.tex
-
 
 # detect CD/DVD drive
 # If there's none then nothing happens
