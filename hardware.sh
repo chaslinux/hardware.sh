@@ -12,22 +12,23 @@ RED='\033[0;31m'
 CYAN='\033[1;36m'
 
 # update the system because the script might not work if old software is installed
+sudo apt update
 echo -e "${LTGREEN}***${CYAN}\e[5m Running updates !  \e[0m${LTGREEN}*** ${NC}"
-sudo apt update && sudo apt -y upgrade
+sudo apt -y upgrade
 
 # Install software for LaTeX, PDF creation, and benchmarking
 echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation !${LTGREEN}*** ${NC}"
-sudo apt -y install smbclient > /dev/null 2>&1 # so we can copy the serialno.pdf to our TrueNAS server
-sudo apt -y install smartmontools > /dev/null 2>&1  # for hard drives
-sudo apt -y install libcdio-utils > /dev/null 2>&1  # for cd-drives
-sudo apt -y install acpi > /dev/null 2>&1  # for power information on laptops
-sudo apt -y install texlive-latex-base > /dev/null 2>&1  # to make pdfs
-sudo apt -y install texlive-latex-extra > /dev/null 2>&1  # needed for changes on 05/28/2025
-sudo apt -y install barcode > /dev/null 2>&1  # to create barcodes
-sudo apt -y install texlive-extra-utils > /dev/null 2>&1  # So we can create convert eps barcode to pdf then crop
-sudo apt -y install texlive-pictures > /dev/null 2>&1  # more barcode handling
-sudo apt install pango1.0-tools sysbench glmark2 imagemagick -y  > /dev/null 2>&1
-sudo apt install img2pdf -y > /dev/null 2>&1
+sudo apt -y install smbclient # so we can copy the serialno.pdf to our TrueNAS server
+sudo apt -y install smartmontools # for hard drives
+sudo apt -y install libcdio-utils # for cd-drives
+sudo apt -y install acpi # for power information on laptops
+sudo apt -y install texlive-latex-base # to make pdfs
+sudo apt -y install texlive-latex-extra # needed for changes on 05/28/2025
+sudo apt -y install barcode # to create barcodes
+sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
+sudo apt -y install texlive-pictures # more barcode handling
+sudo apt install pango1.0-tools sysbench glmark2 imagemagick -y
+sudo apt install img2pdf -y
 
 
 # Variables
