@@ -6,7 +6,29 @@
 WHITE='\033[1;37m'
 NC='\033[0m'
 LTGREEN='\033[1;32m'
-PURPLE='\033[0;35m'
+PURPLE='\033[1;35m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+CYAN='\033[1;36m'
+
+# update the system because the script might not work if old software is installed
+echo -e "${LTGREEN}***${CYAN}\e[5m Running updates !  \e[0m${LTGREEN}*** ${NC}"
+sudo apt update && sudo apt -y upgrade
+
+# Install software for LaTeX, PDF creation, and benchmarking
+echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation !${LTGREEN}*** ${NC}"
+sudo apt -y install smbclient > /dev/null 2>&1 # so we can copy the serialno.pdf to our TrueNAS server
+sudo apt -y install smartmontools > /dev/null 2>&1  # for hard drives
+sudo apt -y install libcdio-utils > /dev/null 2>&1  # for cd-drives
+sudo apt -y install acpi > /dev/null 2>&1  # for power information on laptops
+sudo apt -y install texlive-latex-base > /dev/null 2>&1  # to make pdfs
+sudo apt -y install texlive-latex-extra > /dev/null 2>&1  # needed for changes on 05/28/2025
+sudo apt -y install barcode > /dev/null 2>&1  # to create barcodes
+sudo apt -y install texlive-extra-utils > /dev/null 2>&1  # So we can create convert eps barcode to pdf then crop
+sudo apt -y install texlive-pictures > /dev/null 2>&1  # more barcode handling
+sudo apt install pango1.0-tools sysbench glmark2 imagemagick -y  > /dev/null 2>&1
+sudo apt install img2pdf -y > /dev/null 2>&1
+
 
 # Variables
 CURRENTDIR=$(pwd)
@@ -18,8 +40,6 @@ MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15-)
 CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
 VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
-# Note: MMODEL includes a space before the model
-#SDDRIVE=$(smartctl --scan | cut -c -8)
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
@@ -31,7 +51,9 @@ PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16-)
 PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16-)
 PRODUCT="$PROD1 $PROD2"
 NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
-
+echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU single-core and multi-core performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
+SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
+MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
 
 ### There is a bug in the ghostscript included with Imagemagick in Linux Mint 21.3
 ### that prevents convert from converting images to PDFs. It's a security issue so
@@ -42,26 +64,6 @@ NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 if [ $OSRELEASE=="21.3" ]; then
 	sudo sed -i '/<policy domain="coder" rights="none" pattern="PDF" \/>/d' /etc/ImageMagick-6/policy.xml 
 fi
-
-# update the system because the script might not work if old software is installed
-echo -e "${LTGREEN}*** ${WHITE}Running updates ! ${LTGREEN}*** ${NC}"
-sudo apt update && sudo apt -y upgrade
-
-echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation ! ${LTGREEN}*** ${NC}"
-# install necessary extra software
-sudo apt -y install smbclient # so we can copy the serialno.pdf to our TrueNAS server
-sudo apt -y install smartmontools # for hard drives
-sudo apt -y install libcdio-utils # for cd-drives
-sudo apt -y install acpi # for power information on laptops
-sudo apt -y install texlive-latex-base # to make pdfs
-sudo apt -y install texlive-latex-extra # needed for changes on 05/28/2025
-sudo apt -y install barcode # to create barcodes
-# Note: I don't like installing all these extra tools for one tool.
-sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
-sudo apt -y install texlive-pictures # more barcode handling
-# For new benchmarking features
-sudo apt install pango1.0-tools sysbench glmark2 imagemagick -y
-sudo apt install img2pdf -y
 
 ###################################################
 ### This area is for the benchmarks development ###
@@ -90,21 +92,21 @@ if [ -f /home/"$USER"/Desktop/glmark2.png ]; then
 	rm /home/"$USER"/Desktop/glmark2.png
 fi
 
-# create the sysbench text file
-echo -n "CPU: " > /home/"$USER"/Desktop/sysbench.txt
-echo "Now running sysbench... be patient for a few seconds..."
-sysbench cpu --cpu-max-prime=10000 run | grep "events per second" | cut -c 25- >> /home/"$USER"/Desktop/sysbench.txt
+# Create a sysbench text file with the benchmarks
+echo -n "CPU (single-core): $SINGLEBENCH CPU (Multi-core): $MULTIBENCH " > /home/"$USER"/Desktop/sysbench.txt
+# echo "Now running sysbench... be patient for a few seconds..."
+# sysbench cpu --cpu-max-prime=10000 run | grep "events per second" | cut -c 25- >> /home/"$USER"/Desktop/sysbench.txt
 
 # create the glmark2 text file
 echo -n "GLMark2: " > /home/"$USER"/Desktop/glmark2.txt
-echo "Now running glmark2... be patient for a few seconds..."
+echo -e "${LTGREEN}***${PURPLE}\e[5m Now running glmark2... be patient for a few seconds... \e[0m${LTGREEN}***"
 glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> /home/"$USER"/Desktop/glmark2.txt
 
 # Now create the images to be incorporated into the PDF
-pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/title.png $CURRENTDIR/bench-title.txt
-pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
-pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
-
+# pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/title.png $CURRENTDIR/bench-title.txt
+pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/title.png $CURRENTDIR/bench-title.txt
+pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
+pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mtitle.png $CURRENTDIR/bench-title.txt
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/msysbench.png /home/"$USER"/Desktop/sysbench.txt
 pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/mglmark2.png /home/"$USER"/Desktop/glmark2.txt
@@ -116,8 +118,11 @@ convert -bordercolor black -border 2 /home/"$USER"/Desktop/mBenchmarks.png /home
 convert /home/"$USER"/Desktop/mresults.png /home/"$USER"/Desktop/mresults.pdf
 
 # Join the PNG images together
-convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
-convert /home/"$USER"/Desktop/title.png /home/"$USER"/Desktop/benchmarks.png -append /home/"$USER"/Desktop/Benchmarks.png
+# convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
+convert /home/"$USER"/Desktop/sysbench.png +append /home/"$USER"/Desktop/sysbenchmark.png
+convert /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/glmark2mark.png
+convert /home/"$USER"/Desktop/sysbenchmark.png /home/"$USER"/Desktop/glmark2mark.png -append /home/"$USER"/Desktop/Benchmarks.png
+# convert /home/"$USER"/Desktop/title.png /home/"$USER"/Desktop/benchmarks.png -append /home/"$USER"/Desktop/Benchmarks.png
 convert -bordercolor black -border 2 /home/"$USER"/Desktop/Benchmarks.png /home/"$USER"/Desktop/results.png
 
 # Remove the text files
@@ -131,6 +136,8 @@ rm /home/"$USER"/Desktop/msysbench.png
 rm /home/"$USER"/Desktop/mBenchmarks.png
 rm /home/"$USER"/Desktop/mbenchmarks.png
 rm /home/"$USER"/Desktop/mresults.png
+rm /home/"$USER"/Desktop/sysbenchmark.png
+rm /home/"$USER"/Desktop/glmark2mark.png
 
 # Make one PNG file
 convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
