@@ -254,7 +254,7 @@ if [ $EMMC=="" ];
 fi
 if lshw -short | grep nvme; then
     {
-	lshw -short | grep -m1 nvme | cut -c 17- 
+	lshw -short | grep -m1 nvme | cut -c 17- | tr -d "_"
 	printf '\\newline\n' 
 	} >> /home/"$USER"/Desktop/specs.tex
 fi
