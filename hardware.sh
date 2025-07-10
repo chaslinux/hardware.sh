@@ -33,23 +33,23 @@ sudo apt install img2pdf -y
 
 # Variables
 CURRENTDIR=$(pwd)
-FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- )
+FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- | tr -d "_")
 SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
 MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
-MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15-)
+MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15- | tr -d "_")
 CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
 VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
-HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
+HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
 GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
-PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16-)
-PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16-)
+PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16- | tr -d "_")
+PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16- | tr -d "_")
 PRODUCT="$PROD1 $PROD2"
 NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
