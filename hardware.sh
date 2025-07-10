@@ -181,7 +181,7 @@ fi
 {
 	sudo dmidecode -t 1 | grep "Manufacturer" 
 	echo "\quad" 
-	sudo dmidecode -t 1 | grep "Product Name" 
+	sudo dmidecode -t 1 | grep "Product Name" | tr -d "_"
 	printf '\\newline\n' 
 	sudo dmidecode -t 1 | grep "Family" 
 	echo "\quad" 
