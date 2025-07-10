@@ -411,10 +411,9 @@ if lshw -short | grep nvme; then
 fi
 
 for SDDRIVE in $SDDRIVE; do
-		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
+		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model")
 		if [ ! -z "$HDDFAMILY" ];	
-
-		then
+    		then
 				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | cut -c 14- >> /home/"$USER"/Desktop/small_display.tex
 				echo "\newline" >> /home/"$USER"/Desktop/small_display.tex
 		else
