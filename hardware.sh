@@ -250,7 +250,7 @@ if [ $EMMC=="" ];
 	then
 		echo "No EMMC drive"
 	else
-		sudo fdisk -l | grep $EMMC | head -1 >> /home/"$USER"/Desktop/specs.tex
+		sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
 fi
 if lshw -short | grep nvme; then
     {
@@ -401,7 +401,7 @@ if [ $EMMC=="" ];
 	then
 		echo "No EMMC drive"
 	else
-		sudo fdisk -l | grep $EMMC | head -1 >> /home/"$USER"/Desktop/small_display.tex
+		sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/"$USER"/Desktop/small_display.tex
 fi
 if lshw -short | grep nvme; then
     {
