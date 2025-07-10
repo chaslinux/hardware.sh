@@ -268,7 +268,7 @@ for SDDRIVE in $SDDRIVE; do
 #				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/"$USER"/Desktop/specs.tex
 #				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
 
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model"  >> /home/"$USER"/Desktop/specs.tex
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
 				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
 
 				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/"$USER"/Desktop/specs.tex
@@ -405,7 +405,7 @@ if [ $EMMC=="" ];
 fi
 if lshw -short | grep nvme; then
     {
-	lshw -short | grep -m1 nvme | cut -c 17- 
+	lshw -short | grep -m1 nvme | cut -c 17- | tr -d "_"
 	echo "\newline" 
 	} >> /home/"$USER"/Desktop/small_display.tex
 fi
@@ -414,7 +414,7 @@ for SDDRIVE in $SDDRIVE; do
 		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model")
 		if [ ! -z "$HDDFAMILY" ];	
     		then
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | cut -c 14- >> /home/"$USER"/Desktop/small_display.tex
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | cut -c 14- | tr -d "_"  >> /home/"$USER"/Desktop/small_display.tex
 				echo "\newline" >> /home/"$USER"/Desktop/small_display.tex
 		else
 				echo "This is not actually a hard drive, nor an SSD, but a media drive."
