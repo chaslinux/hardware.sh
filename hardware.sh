@@ -33,7 +33,7 @@ sudo apt install img2pdf -y
 
 # Variables
 CURRENTDIR=$(pwd)
-FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10-)
+FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- )
 SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
 MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
@@ -155,11 +155,11 @@ echo -e "${LTGREEN}*** ${WHITE}Creating the barcode ! ${LTGREEN}*** ${NC}"
 if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be filled by O.E.M." || $SERIALNO == "Default string" || $SERIALNO =~ [^A-Za-z0-9] ]]
 	then    # set the serial number to the mac address if any of the above apply
 		echo "$FAMILY"
-		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' >> /home/"$USER"/Desktop/barcode.txt
+		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' | tr -d "_" >> /home/"$USER"/Desktop/barcode.txt
 		SERIALNO=$(cat /sys/class/net/*/address | head -n 1 | sed 's/://g')
 	else
 		echo "$FAMILY"
-		sudo dmidecode -t 1 | grep "Serial" | cut -c 17- >> /home/"$USER"/Desktop/barcode.txt
+		sudo dmidecode -t 1 | grep "Serial" | cut -c 17- | tr -d "_" >> /home/"$USER"/Desktop/barcode.txt
 		SERIALNO=$(sudo dmidecode -t 1 | grep "Serial" | cut -c 17-)
 fi
 
@@ -174,7 +174,7 @@ echo "\section{Model}" >> /home/"$USER"/Desktop/specs.tex
 if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]
 	then
 		{
-		echo "Motherboard: " "$MMFG" "Model: " "$MMODEL"
+		echo "Motherboard: " "$MMFG" "Model: " "$MMODEL" | tr -d "_"
 		printf '\\newline\n'
 		} >> /home/"$USER"/Desktop/specs.tex
 fi
@@ -183,9 +183,9 @@ fi
 	echo "\quad" 
 	sudo dmidecode -t 1 | grep "Product Name" | tr -d "_"
 	printf '\\newline\n' 
-	sudo dmidecode -t 1 | grep "Family" 
+	sudo dmidecode -t 1 | grep "Family" | tr -d "_"
 	echo "\quad" 
-	sudo dmidecode -t 1 | grep "Serial"
+	sudo dmidecode -t 1 | grep "Serial" | tr -d "_"
 	printf '\\newline\n' 
 	echo "\includegraphics{serial.pdf}" 
 	echo "\includegraphics{results.pdf}"
@@ -198,10 +198,10 @@ rm barcode.txt barcode.eps barcode.pdf
 # detect CPU information
 {
 	printf '\\section{CPU}\n'
-	sudo dmidecode -t 4 | grep "Manufacturer"
+	sudo dmidecode -t 4 | grep "Manufacturer" | tr -d "_"
 	printf '\\quad\n'
 	# sudo dmidecode -t 4 | grep "Version"
-	echo 'Model: ' "$CPUMODEL"
+	echo 'Model: ' "$CPUMODEL" | tr -d "_"
 	printf '\\newline\n'
 	sudo dmidecode -t 4 | grep "Core Count"
 	printf '\\quad\n'
@@ -284,11 +284,11 @@ done
 if lshw -short | grep cdrom; then
 	{
 		echo "\section{DVDDrive}" 
-		cd-drive | grep Vendor 
+		cd-drive | grep Vendor | tr -d "_"
 		echo "\quad" 
-		cd-drive | grep Model 
+		cd-drive | grep Model | tr -d "_"
 		echo "\quad" 
-		cd-drive | grep Revision 
+		cd-drive | grep Revision | tr -d "_"
 	} >> /home/"$USER"/Desktop/specs.tex
 fi
 
@@ -296,13 +296,13 @@ fi
 {
 	echo "\section{Network}" 
 #	sudo lshw -class network | grep product
-	echo "$NETWORK"
+	echo "$NETWORK" | tr -d "_"
 } >> /home/"$USER"/Desktop/specs.tex
 
 #detect sound card information
 {
 	echo "\section{Sound}"
-	sudo lshw -class sound | grep -m 1 product
+	sudo lshw -class sound | grep -m 1 product | tr -d "_"
 } >> /home/"$USER"/Desktop/specs.tex
 
 echo -e "${LTGREEN}*** ${WHITE}Detecting Laptop-specific hardware ! ${LTGREEN}*** ${NC}"
@@ -310,11 +310,11 @@ if [ -d "/proc/acpi/button/lid" ]; then
 	# install necessary extra software
 	echo "\section{Laptop Specific}" >> /home/"$USER"/Desktop/specs.tex
 	if acpi -V | grep "design capacity"; then
-		acpi -V | grep "design capacity" >> /home/"$USER"/Desktop/specs.tex
+		acpi -V | grep "design capacity" | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
 		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
 	fi
 	# display the resolution
-	xrandr | grep -m1 connected >> /home/"$USER"/Desktop/specs.tex
+	xrandr | grep -m1 connected | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
 
 	# fix mouse cannot right or left click when laptop lid is closed
 	sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
@@ -323,7 +323,7 @@ fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
 echo "\section{Operating System}" >> /home/"$USER"/Desktop/specs.tex
-echo $OSFAMILY $XDG_CURRENT_DESKTOP >> /home/"$USER"/Desktop/specs.tex
+echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
 
 echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
 printf '\\end{document}\n' >> /home/"$USER"/Desktop/specs.tex
