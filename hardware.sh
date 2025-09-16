@@ -70,70 +70,70 @@ fi
 ### This area is for the benchmarks development ###
 ###################################################
 
-if [ -f /home/"$USER"/Desktop/sysbench.txt ]; then
+if [ -f /home/$USER/Desktop/sysbench.txt ]; then
 	echo "Removing sysbench.txt..."
-	rm /home/"$USER"/Desktop/sysbench.txt
+	rm /home/$USER/Desktop/sysbench.txt
 else
 	echo "No sysbench.txt file, creating one."
 fi
 
-if [ -f /home/"$USER"/Desktop/glmark2.txt ]; then
+if [ -f /home/$USER/Desktop/glmark2.txt ]; then
 	echo "Removing glmark2.txt..."
-	rm /home/"$USER"/Desktop/glmark2.txt
+	rm /home/$USER/Desktop/glmark2.txt
 else
 	echo "No glmark2.txt file, creating one."
 fi
 
-if [ -f /home/"$USER"/Desktop/sysbench.png ]; then
+if [ -f /home/$USER/Desktop/sysbench.png ]; then
 	echo "Removing sysbench.png"
-	rm /home/"$USER"/Desktop/sysbench.png
+	rm /home/$USER/Desktop/sysbench.png
 fi
-if [ -f /home/"$USER"/Desktop/glmark2.png ]; then
+if [ -f /home/$USER/Desktop/glmark2.png ]; then
 	echo "Removing glmark2.png"
-	rm /home/"$USER"/Desktop/glmark2.png
+	rm /home/$USER/Desktop/glmark2.png
 fi
 
 # Create a sysbench text file with the benchmarks
-echo -n "CPU (single-core): $SINGLEBENCH CPU (Multi-core): $MULTIBENCH " > /home/"$USER"/Desktop/sysbench.txt
+echo -n "CPU (single-core): $SINGLEBENCH CPU (Multi-core): $MULTIBENCH " > /home/$USER/Desktop/sysbench.txt
 # echo "Now running sysbench... be patient for a few seconds..."
-# sysbench cpu --cpu-max-prime=10000 run | grep "events per second" | cut -c 25- >> /home/"$USER"/Desktop/sysbench.txt
+# sysbench cpu --cpu-max-prime=10000 run | grep "events per second" | cut -c 25- >> /home/$USER/Desktop/sysbench.txt
 
 # create the glmark2 text file
-echo -n "GLMark2: " > /home/"$USER"/Desktop/glmark2.txt
+echo -n "GLMark2: " > /home/$USER/Desktop/glmark2.txt
 echo -e "${LTGREEN}***${PURPLE}\e[5m Now running glmark2... be patient for a few seconds... \e[0m${LTGREEN}***"
-glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> /home/"$USER"/Desktop/glmark2.txt
+glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> /home/$USER/Desktop/glmark2.txt
 
 # Now create the images to be incorporated into the PDF
-# pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/"$USER"/Desktop/title.png $CURRENTDIR/bench-title.txt
-pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/title.png $CURRENTDIR/bench-title.txt
-pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/sysbench.txt
-pango-view --font="Roboto Condensed" -qo /home/"$USER"/Desktop/glmark2.png /home/"$USER"/Desktop/glmark2.txt
+# pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/$USER/Desktop/title.png $CURRENTDIR/bench-title.txt
+pango-view --font="Roboto Condensed" -qo /home/$USER/Desktop/title.png $CURRENTDIR/bench-title.txt
+pango-view --font="Roboto Condensed" -qo /home/$USER/Desktop/sysbench.png /home/$USER/Desktop/sysbench.txt
+pango-view --font="Roboto Condensed" -qo /home/$USER/Desktop/glmark2.png /home/$USER/Desktop/glmark2.txt
 
 # Join the PNG images together
-convert /home/"$USER"/Desktop/sysbench.png +append /home/"$USER"/Desktop/sysbenchmark.png
-convert /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/glmark2mark.png
-convert /home/"$USER"/Desktop/sysbenchmark.png /home/"$USER"/Desktop/glmark2mark.png -append /home/"$USER"/Desktop/Benchmarks.png
-convert -bordercolor black -border 2 /home/"$USER"/Desktop/Benchmarks.png /home/"$USER"/Desktop/results.png
+convert /home/$USER/Desktop/sysbench.png +append /home/$USER/Desktop/sysbenchmark.png
+convert /home/$USER/Desktop/glmark2.png +append /home/$USER/Desktop/glmark2mark.png
+convert /home/$USER/Desktop/sysbenchmark.png /home/$USER/Desktop/glmark2mark.png -append /home/$USER/Desktop/Benchmarks.png
+convert -bordercolor black -border 2 /home/$USER/Desktop/Benchmarks.png /home/$USER/Desktop/results.png
 
 # Remove the text files
-rm /home/"$USER"/Desktop/glmark2.txt
-rm /home/"$USER"/Desktop/sysbench.txt
+rm /home/$USER/Desktop/glmark2.txt
+rm /home/$USER/Desktop/sysbench.txt
 
 # Remove the temporary image files
-rm /home/"$USER"/Desktop/sysbenchmark.png
-rm /home/"$USER"/Desktop/glmark2mark.png
+rm /home/$USER/Desktop/sysbenchmark.png
+rm /home/$USER/Desktop/glmark2mark.png
 
 # Make one PNG file
-convert /home/"$USER"/Desktop/sysbench.png /home/"$USER"/Desktop/glmark2.png +append /home/"$USER"/Desktop/benchmarks.png
+convert /home/$USER/Desktop/sysbench.png /home/$USER/Desktop/glmark2.png +append /home/$USER/Desktop/benchmarks.png
 
 # Convert results.png benchmark to a PDF file to imported into specs.tex
-img2pdf /home/"$USER"/Desktop/results.png -o /home/"$USER"/Desktop/results.pdf
+img2pdf /home/$USER/Desktop/results.png -o /home/$USER/Desktop/results.pdf
 
 echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGREEN}*** ${NC}"
-# create a latex document at /home/"$USER"/Desktop/specs.tex
-if [ ! -f /home/"$USER"/Desktop/specs.tex ]; then
+# create a latex document at /home/$USER/Desktop/specs.tex
+if [ ! -f /home/$USER/Desktop/specs.tex ]; then
 	echo "creating /home/$USER/Desktop/specs.tex"
-	touch /home/"$USER"/Desktop/specs.tex
+	touch /home/$USER/Desktop/specs.tex
 	{
 	printf '\\documentclass{article}\n'
 	printf '\\usepackage{parskip}\n'
@@ -141,42 +141,42 @@ if [ ! -f /home/"$USER"/Desktop/specs.tex ]; then
 	printf '\\usepackage{graphicx}\n'
 	printf '\\title{System Specifications}\n'
 	printf '\\begin{document}\n'
-	} >> /home/"$USER"/Desktop/specs.tex
+	} >> /home/$USER/Desktop/specs.tex
 fi
 
 # First output the title
-printf '\\maketitle\n' >> /home/"$USER"/Desktop/specs.tex
+printf '\\maketitle\n' >> /home/$USER/Desktop/specs.tex
 
 # Now let's create the barcode
-# if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/"$USER"/Desktop/barcode.txt
+# if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/$USER/Desktop/barcode.txt
 # Wrap bottom statement in an IF statement or maybe set this as a varable before
 # 02/14/2023 - Happy Valentines Day - if SLEN is less than 4 characters it's not a proper serial number, use mac address
 echo -e "${LTGREEN}*** ${WHITE}Creating the barcode ! ${LTGREEN}*** ${NC}"
 if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be filled by O.E.M." || $SERIALNO == "Default string" || $SERIALNO =~ [^A-Za-z0-9] ]]
 	then    # set the serial number to the mac address if any of the above apply
 		echo "$FAMILY"
-		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' | tr -d "_" >> /home/"$USER"/Desktop/barcode.txt
+		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' | tr -d "_" >> /home/$USER/Desktop/barcode.txt
 		SERIALNO=$(cat /sys/class/net/*/address | head -n 1 | sed 's/://g')
 	else
 		echo "$FAMILY"
-		sudo dmidecode -t 1 | grep "Serial" | cut -c 17- | tr -d "_" >> /home/"$USER"/Desktop/barcode.txt
+		sudo dmidecode -t 1 | grep "Serial" | cut -c 17- | tr -d "_" >> /home/$USER/Desktop/barcode.txt
 		SERIALNO=$(sudo dmidecode -t 1 | grep "Serial" | cut -c 17-)
 fi
 
-barcode -e "128" -g "144x72" -E -i /home/"$USER"/Desktop/barcode.txt  -o /home/"$USER"/Desktop/barcode.eps
-cd /home/"$USER"/Desktop || exit
+barcode -e "128" -g "144x72" -E -i /home/$USER/Desktop/barcode.txt  -o /home/$USER/Desktop/barcode.eps
+cd /home/$USER/Desktop || exit
 epspdf barcode.eps barcode.pdf
 pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
 
 # detect Model/Mfg information
 echo -e "${LTGREEN}*** ${WHITE}Detecting system information ! ${LTGREEN}*** ${NC}"
-echo "\section{Model}" >> /home/"$USER"/Desktop/specs.tex
+echo "\section{Model}" >> /home/$USER/Desktop/specs.tex
 if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]
 	then
 		{
 		echo "Motherboard: " "$MMFG" "Model: " "$MMODEL" | tr -d "_"
 		printf '\\newline\n'
-		} >> /home/"$USER"/Desktop/specs.tex
+		} >> /home/$USER/Desktop/specs.tex
 fi
 {
 	sudo dmidecode -t 1 | grep "Manufacturer" 
@@ -190,7 +190,7 @@ fi
 	echo "\includegraphics{serial.pdf}" 
 	echo "\includegraphics{results.pdf}"
 	printf '\\newline\n' 
-} >> /home/"$USER"/Desktop/specs.tex
+} >> /home/$USER/Desktop/specs.tex
 
 # Now remove all the files that got created to generate the pdf
 rm barcode.txt barcode.eps barcode.pdf
@@ -207,7 +207,7 @@ rm barcode.txt barcode.eps barcode.pdf
 	printf '\\quad\n'
 	sudo dmidecode -t 4 | grep "Thread Count"
 	printf '\\newline\n' 
-} >> /home/"$USER"/Desktop/specs.tex
+} >> /home/$USER/Desktop/specs.tex
 
 #detect RAM information
 {
@@ -222,41 +222,41 @@ rm barcode.txt barcode.eps barcode.pdf
 	sudo dmidecode -t 17 | grep -m 1 "Type: DDR" 
 	printf '\\newline\n' 
 	sudo dmidecode -t 17 | grep "Configured Memory Speed" 
-} >> /home/"$USER"/Desktop/specs.tex
+} >> /home/$USER/Desktop/specs.tex
 
 #detect GRAPHICS information
 {
 printf '\\section{GRAPHICS}\n'
 sudo lshw -C Display | grep product | sed 's/&//g'
 printf '\\newline\n'  # this and the following line added 20/01/2023
-} >> /home/"$USER"/Desktop/specs.tex
+} >> /home/$USER/Desktop/specs.tex
 
 if [[ $VLEN -gt 2 ]]
 	then
-		echo "$VRAM" >> /home/"$USER"/Desktop/specs.tex 
+		echo "$VRAM" >> /home/$USER/Desktop/specs.tex 
 	else
-		glxinfo | grep "Total available memory" | cut -c 5- >> /home/"$USER"/Desktop/specs.tex
+		glxinfo | grep "Total available memory" | cut -c 5- >> /home/$USER/Desktop/specs.tex
 fi
 
 {
 	printf '\\newline\n' 
 	glxinfo | grep "OpenGL version" 
-} >> /home/"$USER"/Desktop/specs.tex
+} >> /home/$USER/Desktop/specs.tex
 
 #detect hard drive
-printf '\\section{HardDrive}\n' >> /home/"$USER"/Desktop/specs.tex
+printf '\\section{HardDrive}\n' >> /home/$USER/Desktop/specs.tex
 # check for an eMMC drive
 if [ $EMMC=="" ];
 	then
 		echo "No EMMC drive"
 	else
-		sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
+		sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/$USER/Desktop/specs.tex
 fi
 if lshw -short | grep nvme; then
     {
 	lshw -short | grep -m1 nvme | cut -c 17- | tr -d "_"
 	printf '\\newline\n' 
-	} >> /home/"$USER"/Desktop/specs.tex
+	} >> /home/$USER/Desktop/specs.tex
 fi
 
 for SDDRIVE in $SDDRIVE; do
@@ -265,14 +265,14 @@ for SDDRIVE in $SDDRIVE; do
 		if [ ! -z "$HDDFAMILY" ];	
 
 		then
-#				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/"$USER"/Desktop/specs.tex
-#				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+#				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/$USER/Desktop/specs.tex
+#				printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
-				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | tr -d "_" >> /home/$USER/Desktop/specs.tex
+				printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/"$USER"/Desktop/specs.tex
-				printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex	
+				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/$USER/Desktop/specs.tex
+				printf '\\newline\n' >> /home/$USER/Desktop/specs.tex	
 
 		else
 				echo "This is not actually a hard drive, nor an SSD, but a media drive."
@@ -289,7 +289,7 @@ if lshw -short | grep cdrom; then
 		cd-drive | grep Model | tr -d "_"
 		echo "\quad" 
 		cd-drive | grep Revision | tr -d "_"
-	} >> /home/"$USER"/Desktop/specs.tex
+	} >> /home/$USER/Desktop/specs.tex
 fi
 
 #detect network card information
@@ -297,24 +297,24 @@ fi
 	echo "\section{Network}" 
 #	sudo lshw -class network | grep product
 	echo "$NETWORK" | tr -d "_"
-} >> /home/"$USER"/Desktop/specs.tex
+} >> /home/$USER/Desktop/specs.tex
 
 #detect sound card information
 {
 	echo "\section{Sound}"
 	sudo lshw -class sound | grep -m 1 product | tr -d "_"
-} >> /home/"$USER"/Desktop/specs.tex
+} >> /home/$USER/Desktop/specs.tex
 
 echo -e "${LTGREEN}*** ${WHITE}Detecting Laptop-specific hardware ! ${LTGREEN}*** ${NC}"
 if [ -d "/proc/acpi/button/lid" ]; then
 	# install necessary extra software
-	echo "\section{Laptop Specific}" >> /home/"$USER"/Desktop/specs.tex
+	echo "\section{Laptop Specific}" >> /home/$USER/Desktop/specs.tex
 	if acpi -V | grep "design capacity"; then
-		acpi -V | grep "design capacity" | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
-		printf '\\newline\n' >> /home/"$USER"/Desktop/specs.tex
+		acpi -V | grep "design capacity" | tr -d "_" >> /home/$USER/Desktop/specs.tex
+		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 	fi
 	# display the resolution
-	xrandr | grep -m1 connected | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
+	xrandr | grep -m1 connected | tr -d "_" >> /home/$USER/Desktop/specs.tex
 
 	# fix mouse cannot right or left click when laptop lid is closed
 	sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
@@ -322,12 +322,12 @@ if [ -d "/proc/acpi/button/lid" ]; then
 fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
-echo "\section{Operating System}" >> /home/"$USER"/Desktop/specs.tex
-echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/"$USER"/Desktop/specs.tex
+echo "\section{Operating System}" >> /home/$USER/Desktop/specs.tex
+echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/$USER/Desktop/specs.tex
 
 echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
-printf '\\end{document}\n' >> /home/"$USER"/Desktop/specs.tex
-cd /home/"$USER"/Desktop || exit
+printf '\\end{document}\n' >> /home/$USER/Desktop/specs.tex
+cd /home/$USER/Desktop || exit
 
 
 ##########################
@@ -351,98 +351,24 @@ if [ $OSRELEASE=="21.3" ]; then
 	sudo sed -i "$POLICYCOUNT i\\<policy domain=\"coder\" rights=\"none\" pattern=\"PDF\" />\\" /etc/ImageMagick-6/policy.xml
 fi
 
-cat << END >> small_display.tex
-\documentclass{article}
-\usepackage{blindtext}
-\usepackage{mdframed}
-\usepackage[paperheight=5.0in,paperwidth=5.0in,margin=0.15in,heightrounded,showframe]{geometry}
-\usepackage{parskip}
-\usepackage{xcolor}
-\usepackage{graphicx}
-\usepackage[T1]{fontenc}
-\usepackage{tgbonum}
-\usepackage{ntheorem}
-
-\begin{document}
-
-\theoremstyle{nonumberplain}
-\newmdtheoremenv[%
-  backgroundcolor=white,
-  linecolor=white,
-  linewidth=2pt,
-  topline=false,
-  rightline=false,
-  leftline=false]{whitebox}{}
-
-\begin{whitebox}
-END
-
-echo "\begin{center}" >> small_display.tex
-echo "{\fontfamily{qcr}\selectfont" >> small_display.tex
-echo "$PRODUCT" >> small_display.tex
-echo "}" >> small_display.tex
-echo "\end{center}" >> small_display.tex
-echo "\begin{center}" >> small_display.tex
-echo "\includegraphics{serial.pdf}" >> small_display.tex
-echo "\end{center}" >> small_display.tex
-#echo "\newline" >> small_display.tex
-# echo "\newline" >> small_display.tex
-echo "\includegraphics{results.pdf}" >> small_display.tex
-echo "\newline" >> small_display.tex
-echo "\newline" >> small_display.tex
-echo "{\fontfamily{put}\selectfont" >> small_display.tex
-echo "$CPUMODEL" >> small_display.tex
-echo "\newline" >> small_display.tex
-echo "$RAMSIZE" >> small_display.tex
-echo "\newline" >> small_display.tex
-echo "$GRAPHICS" >> small_display.tex
-echo "\newline" >> small_display.tex
-if [ $EMMC=="" ];
-	then
-		echo "No EMMC drive"
-	else
-		sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/"$USER"/Desktop/small_display.tex
-fi
-if lshw -short | grep nvme; then
-    {
-	lshw -short | grep -m1 nvme | cut -c 17- | tr -d "_"
-	echo "\newline" 
-	} >> /home/"$USER"/Desktop/small_display.tex
-fi
-
-for SDDRIVE in $SDDRIVE; do
-		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model")
-		if [ ! -z "$HDDFAMILY" ];	
-    		then
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | cut -c 14- | tr -d "_"  >> /home/"$USER"/Desktop/small_display.tex
-				echo "\newline" >> /home/"$USER"/Desktop/small_display.tex
-		else
-				echo "This is not actually a hard drive, nor an SSD, but a media drive."
-		fi
-done
-echo "}" >> small_display.tex
-echo "$NETWORK" >> small_display.tex
-echo "\end{whitebox}" >> small_display.tex
-echo "\end{document}" >> small_display.tex
-pdflatex small_display.tex
-
-# lastly remove serial.pdf and other files once the specs.pdf is created
-cd /home/"$USER"/Desktop || exit
+cd /home/$USER/Desktop || exit
 rm specs.log specs.aux serial.pdf specs.tex sysbench.pdf glmark2.pdf
 # Remove the images that we no longer need because they are one PDF -- results.pdf
-rm /home/"$USER"/Desktop/sysbench.png
-rm /home/"$USER"/Desktop/glmark2.png
-rm /home/"$USER"/Desktop/results.png 
-rm /home/"$USER"/Desktop/Benchmarks.png
-rm /home/"$USER"/Desktop/benchmarks.png
-rm /home/"$USER"/Desktop/mresults.pdf
-rm /home/"$USER"/Desktop/small_display.tex
-rm /home/"$USER"/Desktop/small_display.log
-rm /home/"$USER"/Desktop/small_display.aux
-rm /home/"$USER"/Desktop/title.png
+rm /home/$USER/Desktop/sysbench.png
+rm /home/$USER/Desktop/glmark2.png
+rm /home/$USER/Desktop/results.png 
+rm /home/$USER/Desktop/Benchmarks.png
+rm /home/$USER/Desktop/benchmarks.png
+rm /home/$USER/Desktop/mresults.pdf
+rm /home/$USER/Desktop/small_display.tex
+rm /home/$USER/Desktop/small_display.log
+rm /home/$USER/Desktop/small_display.aux
+rm /home/$USER/Desktop/title.png
+
 # Now remove the specs.pdf because we've created SERIALNO.PDF
 rm specs.pdf 
 rm results.pdf
+
 
 if [ -f /home/$USER/Desktop/small_display.thm ]; then
 	rm /home/$USER/Desktop/small_display.thm
