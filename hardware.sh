@@ -14,7 +14,7 @@ CYAN='\033[1;36m'
 # update the system because the script might not work if old software is installed
 sudo apt update
 echo -e "${LTGREEN}***${CYAN}\e[5m Running updates !  \e[0m${LTGREEN}*** ${NC}"
-sudo apt -y upgrade
+sudo apt upgrade -y
 
 # Install software for LaTeX, PDF creation, and benchmarking
 echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation !${LTGREEN}*** ${NC}"
@@ -28,8 +28,8 @@ sudo apt -y install barcode # to create barcodes
 sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
 sudo apt -y install texlive-pictures # more barcode handling
 sudo apt -y install nvme-cli # add tools to query nvme status
-sudo apt install pango1.0-tools sysbench glmark2 imagemagick -y
-sudo apt install img2pdf -y
+sudo apt -y install pango1.0-tools sysbench glmark2 imagemagick 
+sudo apt -y install img2pdf 
 
 
 # Variables
@@ -46,6 +46,9 @@ SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
 NVME=$(nvme list | grep nvme)
+NVMENAME=$(nvme list | grep nvme | cut -c -12)
+NVMEDATAREAD=$(sudo nvme smart-log $NVMENAME | grep "Data Units Read")
+NVMEDATAWRITTEN=$(sudo nvme smart-log $NVMENAME | grep "Data Units Written")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
@@ -383,15 +386,42 @@ if [ ! "$sensors" == "Status: install ok installed" ]
 		echo "Installing lm-sensors"
 		sudo apt install lm-sensors -y
 		sudo sensors-detect
-		sensors > /home/$USER/Desktop/sensors.txt
+        echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
+		sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
 	else
+        echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
 		echo "Lm-sensors is already installed."
-  		sensors > /home/$USER/Desktop/sensors.txt
+		sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
 fi
 
-# testing nvme status
+# testing nvme status - write to sensors.txt
 if [ -n "$NVME" ]; then
-    echo "This computer has an NVMe drive"
+    echo "Writing NVME read/write to sensors.txt data file"
+    echo -e "\n" >> /home/$USER/Desktop/sensors.txt
+    echo "*** NVMe Read/Write Information ***" >> /home/$USER/Desktop/sensors.txt
+    echo $NVMEDATAREAD >> /home/$USER/Desktop/sensors.txt
+    echo $NVMEDATAWRITTEN >> /home/$USER/Desktop/sensors.txt
 else
     echo "This computer does not have an NVMe drive"
 fi
+
+# Write SSD Life information to sensors.txt
+
+for SDDRIVE in $SDDRIVE; do
+		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
+		if [ ! -z "$HDDFAMILY" ];	
+		then
+            SSDTEST=$(sudo smartctl -i $SDDRIVE | grep "TRIM")
+            if [ -n "$SSDTEST" ]; then
+                SSDWRITES=$(sudo smartctl -a $SDDRIVE | grep "Lifetime_Writes_GiB" | cut -c 88-)
+                SSDREADS=$(sudo smartctl -a $SDDRIVE | grep "Lifetime_Reads_GiB" | cut -c 88-)
+                echo "*** Writing SSD Information ***"
+                echo $SSDREADS >> /home/$USER/Desktop/sensors.txt
+                echo $SSDWRITES >> /home/$USER/Desktop/sensors.txt
+            else
+                echo "No SSD"
+            fi
+		else
+			echo "This is not actually a hard drive, nor an SSD, but a media drive."
+		fi
+done
