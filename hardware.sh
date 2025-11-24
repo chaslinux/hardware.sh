@@ -422,7 +422,7 @@ for SDDRIVE in $SDDRIVE; do
                 SSDWRITES=$(sudo smartctl -a $SDDRIVE | grep "241" | cut -c 88-)
                 SSDREADS=$(sudo smartctl -a $SDDRIVE | grep "242" | cut -c 88-)
                 LBA=$(sudo smartctl -a $SDDRIVE | grep "241" | grep "LBA")
-                if [ -n '$LBA' ]; then
+                if [ -n "$LBA" ]; then
                     SSDWRITES=$(( $SSDWRITES/2097152 ))
                 else 
                     echo "Non-Samsung SSD"
