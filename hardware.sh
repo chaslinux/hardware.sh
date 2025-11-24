@@ -419,8 +419,13 @@ for SDDRIVE in $SDDRIVE; do
 		then
             SSDTEST=$(sudo smartctl -i $SDDRIVE | grep "TRIM")
             if [ -n "$SSDTEST" ]; then
-                SSDWRITES=$(sudo smartctl -a $SDDRIVE | grep "Lifetime_Writes_GiB" | cut -c 88-)
-                SSDREADS=$(sudo smartctl -a $SDDRIVE | grep "Lifetime_Reads_GiB" | cut -c 88-)
+                SSDWRITES=$(sudo smartctl -a $SDDRIVE | grep "241" | cut -c 88-)
+                SSDREADS=$(sudo smartctl -a $SDDRIVE | grep "242" | cut -c 88-)
+                if [ -n 'sudo smartctl -a $SDDRIVE | grep "241" | grep "LBA"' ]; then
+                    SSDWRITES=$(( $SSDWRITES/2097152 ))
+                else 
+                    echo "Non-Samsung SSD"
+                fi
                 echo "*** Writing SSD Information ***"
                 echo "SSD Reads: $SSDREADS" >> /home/$USER/Desktop/sensors.txt
                 echo "SSD Writes: $SSDWRITES" >> /home/$USER/Desktop/sensors.txt
