@@ -45,10 +45,6 @@ VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
-NVME=$(nvme list | grep nvme)
-NVMENAME=$(nvme list | grep nvme | cut -c -12)
-NVMEDATAREAD=$(sudo nvme smart-log $NVMENAME | grep "Data Units Read")
-NVMEDATAWRITTEN=$(sudo nvme smart-log $NVMENAME | grep "Data Units Written")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
@@ -386,8 +382,13 @@ if [ ! "$sensors" == "Status: install ok installed" ]
 		echo "Installing lm-sensors"
 		sudo apt install lm-sensors -y
 		sudo sensors-detect
-        echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
-		sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
+        COREDETECT=$(sensors | grep "Core ")
+        if [ -n "$COREDETECT" ]; then
+            echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
+		    sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
+        else
+            echo "Cores may be referred to as something else, so for now not showing temps"
+        fi
 	else
         echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
 		echo "Lm-sensors is already installed."
@@ -396,6 +397,11 @@ fi
 
 # testing nvme status - write to sensors.txt
 if [ -n "$NVME" ]; then
+    NVME=$(nvme list | grep nvme)
+    NVMENAME=$(nvme list | grep nvme | cut -c -12)
+    NVMEDATAREAD=$(sudo nvme smart-log $NVMENAME | grep "Data Units Read")
+    NVMEDATAWRITTEN=$(sudo nvme smart-log $NVMENAME | grep "Data Units Written")
+
     echo "Writing NVME read/write to sensors.txt data file"
     echo -e "\n" >> /home/$USER/Desktop/sensors.txt
     echo "*** NVMe Read/Write Information ***" >> /home/$USER/Desktop/sensors.txt
@@ -416,8 +422,8 @@ for SDDRIVE in $SDDRIVE; do
                 SSDWRITES=$(sudo smartctl -a $SDDRIVE | grep "Lifetime_Writes_GiB" | cut -c 88-)
                 SSDREADS=$(sudo smartctl -a $SDDRIVE | grep "Lifetime_Reads_GiB" | cut -c 88-)
                 echo "*** Writing SSD Information ***"
-                echo $SSDREADS >> /home/$USER/Desktop/sensors.txt
-                echo $SSDWRITES >> /home/$USER/Desktop/sensors.txt
+                echo "SSD Reads: $SSDREADS" >> /home/$USER/Desktop/sensors.txt
+                echo "SSD Writes: $SSDWRITES" >> /home/$USER/Desktop/sensors.txt
             else
                 echo "No SSD"
             fi
