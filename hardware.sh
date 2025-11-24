@@ -44,6 +44,10 @@ VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
+NVME=$(nvme list | grep nvme)
+NVMENAME=$(nvme list | grep nvme | cut -c -12)
+NVMEDATAREAD=$(sudo nvme smart-log $NVMENAME | grep "Data Units Read")
+NVMEDATAWRITTEN=$(sudo nvme smart-log $NVMENAME | grep "Data Units Written")
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
@@ -390,18 +394,18 @@ if [ ! "$sensors" == "Status: install ok installed" ]
             echo "Cores may be referred to as something else, so for now not showing temps"
         fi
 	else
-        echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
+        if [ -n "$COREDETECT" ]; then
+            echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
+		    sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
+        else
+            echo "Cores may be referred to as something else, so for now not showing temps"
+        fi
 		echo "Lm-sensors is already installed."
-		sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
 fi
 
 # testing nvme status - write to sensors.txt
-if [ -n "$NVME" ]; then
-    NVME=$(nvme list | grep nvme)
-    NVMENAME=$(nvme list | grep nvme | cut -c -12)
-    NVMEDATAREAD=$(sudo nvme smart-log $NVMENAME | grep "Data Units Read")
-    NVMEDATAWRITTEN=$(sudo nvme smart-log $NVMENAME | grep "Data Units Written")
 
+if [ -n "$NVME" ]; then
     echo "Writing NVME read/write to sensors.txt data file"
     echo -e "\n" >> /home/$USER/Desktop/sensors.txt
     echo "*** NVMe Read/Write Information ***" >> /home/$USER/Desktop/sensors.txt
