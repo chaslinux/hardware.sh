@@ -387,6 +387,13 @@ if [ -n "$COREDETECT" ]; then
             echo "Cores may be referred to as something else, so for now not showing temps"
 fi
 
+NVIDIATEST=$(nvidia-smi)
+if [ -n "$NVIDIATEST" ]; then
+        NVIDIAGPUTEMP=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader)
+        echo "*** NVidia GPU Temperature ***" >> /home/$USER/Desktop/sensors.txt
+        echo "NVidia GPU: $NVIDIAGPUTEMP" >> /home/$USER/Desktop/sensors.txt
+fi
+
 # testing nvme status - write to sensors.txt
 
 if [ -n "$NVME" ]; then
