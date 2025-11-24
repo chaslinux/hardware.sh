@@ -14,7 +14,7 @@ CYAN='\033[1;36m'
 # update the system because the script might not work if old software is installed
 sudo apt update
 echo -e "${LTGREEN}***${CYAN}\e[5m Running updates !  \e[0m${LTGREEN}*** ${NC}"
-sudo apt upgrade -y
+sudo apt upgrade -y 
 
 # Install software for LaTeX, PDF creation, and benchmarking
 echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation !${LTGREEN}*** ${NC}"
@@ -28,8 +28,8 @@ sudo apt -y install barcode # to create barcodes
 sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
 sudo apt -y install texlive-pictures # more barcode handling
 sudo apt -y install nvme-cli # add tools to query nvme status
-sudo apt -y install pango1.0-tools sysbench glmark2 imagemagick 
-sudo apt -y install img2pdf 
+sudo apt -y install pango1.0-tools sysbench glmark2 imagemagick
+sudo apt -y install img2pdf
 sudo apt -y install lm-sensors # install lm-sensors to detect temperatures
 
 # Variables
@@ -250,12 +250,13 @@ fi
 #detect hard drive
 printf '\\section{HardDrive}\n' >> /home/$USER/Desktop/specs.tex
 # check for an eMMC drive
-if [ $EMMC=="" ];
+if [ -n "$EMMC" ];
 	then
-		echo "No EMMC drive"
-	else
 		sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/$USER/Desktop/specs.tex
+	else
+		echo "No EMMC drive"
 fi
+
 if lshw -short | grep nvme; then
     {
 	lshw -short | grep -m1 nvme | cut -c 17- | tr -d "_"
@@ -340,7 +341,7 @@ cd /home/$USER/Desktop || exit
 
 # the line below strips out any underscores _ from specs.tex
 sed -i s/_//g specs.tex
-pdflatex specs.tex
+pdflatex specs.tex  > /dev/null
 
 cp specs.pdf $SERIALNO.pdf
 if ping -c 1 -W 1 truenas ; then
@@ -356,22 +357,22 @@ if [ $OSRELEASE=="21.3" ]; then
 fi
 
 cd /home/$USER/Desktop || exit
-rm specs.log specs.aux serial.pdf specs.tex sysbench.pdf glmark2.pdf
+rm specs.log specs.aux serial.pdf specs.tex # sysbench.pdf glmark2.pdf > /dev/null
 # Remove the images that we no longer need because they are one PDF -- results.pdf
-rm /home/$USER/Desktop/sysbench.png
-rm /home/$USER/Desktop/glmark2.png
-rm /home/$USER/Desktop/results.png 
-rm /home/$USER/Desktop/Benchmarks.png
-rm /home/$USER/Desktop/benchmarks.png
-rm /home/$USER/Desktop/mresults.pdf
-rm /home/$USER/Desktop/small_display.tex
-rm /home/$USER/Desktop/small_display.log
-rm /home/$USER/Desktop/small_display.aux
-rm /home/$USER/Desktop/title.png
+rm /home/$USER/Desktop/sysbench.png > /dev/null
+rm /home/$USER/Desktop/glmark2.png > /dev/null
+rm /home/$USER/Desktop/results.png > /dev/null
+rm /home/$USER/Desktop/Benchmarks.png > /dev/null
+rm /home/$USER/Desktop/benchmarks.png > /dev/null
+# rm /home/$USER/Desktop/mresults.pdf > /dev/null
+# rm /home/$USER/Desktop/small_display.tex > /dev/null
+# rm /home/$USER/Desktop/small_display.log > /dev/null
+# rm /home/$USER/Desktop/small_display.aux > /dev/null
+rm /home/$USER/Desktop/title.png > /dev/null
 
 # Now remove the specs.pdf because we've created SERIALNO.PDF
-rm specs.pdf 
-rm results.pdf
+rm specs.pdf  > /dev/null
+rm results.pdf > /dev/null
 
 
 if [ -f /home/$USER/Desktop/small_display.thm ]; then
@@ -379,7 +380,8 @@ if [ -f /home/$USER/Desktop/small_display.thm ]; then
 fi
 
 # set up the sensors
-sudo sensors-detect --auto
+echo -e "${RED}*** ${WHITE}\e[5m Detecting sensors - This may take 45 seconds \e[0m ${RED}*** ${NC}"
+sudo sensors-detect --auto > /dev/null
 if [ -n "$COREDETECT" ]; then
             echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
 		    sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
@@ -387,8 +389,9 @@ if [ -n "$COREDETECT" ]; then
             echo "Cores may be referred to as something else, so for now not showing temps"
 fi
 
-NVIDIATEST=$(nvidia-smi)
-if [ -n "$NVIDIATEST" ]; then
+# Check for an NVidia card, if there is one write the temps to sensors.txt
+NVIDIASMI=/usr/bin/nvidia-smi
+if [ -f "$NVIDIASMI" ]; then
         NVIDIAGPUTEMP=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader)
         echo "*** NVidia GPU Temperature ***" >> /home/$USER/Desktop/sensors.txt
         echo "NVidia GPU: $NVIDIAGPUTEMP" >> /home/$USER/Desktop/sensors.txt
