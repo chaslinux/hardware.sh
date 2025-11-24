@@ -27,6 +27,7 @@ sudo apt -y install texlive-latex-extra # needed for changes on 05/28/2025
 sudo apt -y install barcode # to create barcodes
 sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
 sudo apt -y install texlive-pictures # more barcode handling
+sudo apt -y install nvme-cli # add tools to query nvme status
 sudo apt install pango1.0-tools sysbench glmark2 imagemagick -y
 sudo apt install img2pdf -y
 
@@ -44,6 +45,7 @@ VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
+NVME=$(nvme list | grep nvme)
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
@@ -387,3 +389,9 @@ if [ ! "$sensors" == "Status: install ok installed" ]
   		sensors > /home/$USER/Desktop/sensors.txt
 fi
 
+# testing nvme status
+if [ -n "$NVME" ]; then
+    echo "This computer has an NVMe drive"
+else
+    echo "This computer does not have an NVMe drive"
+fi
