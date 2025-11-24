@@ -374,3 +374,16 @@ if [ -f /home/$USER/Desktop/small_display.thm ]; then
 	rm /home/$USER/Desktop/small_display.thm
 fi
 
+# set up the sensors
+sensors=$(dpkg -s lm-sensors | grep Status)
+if [ ! "$sensors" == "Status: install ok installed" ]
+	then
+		echo "Installing lm-sensors"
+		sudo apt install lm-sensors -y
+		sudo sensors-detect
+		sensors > /home/$USER/Desktop/sensors.txt
+	else
+		echo "Lm-sensors is already installed."
+  		sensors > /home/$USER/Desktop/sensors.txt
+fi
+
