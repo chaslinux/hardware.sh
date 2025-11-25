@@ -41,6 +41,7 @@ MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
 MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15- | tr -d "_")
 CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
 COREDETECT=$(sensors | grep "Core ")
+AMDTDIE=$(sensors | grep "Tdie:" | cut -c 15-)
 VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
@@ -389,6 +390,13 @@ if [ -n "$COREDETECT" ]; then
             echo "Cores may be referred to as something else, so for now not showing temps"
 fi
 
+if [ -n "$AMDTDIE" ]; then
+			echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
+			echo "AMD CPU Temperature average: $AMDTDIE " >> /home/$USER/Desktop/sensors.txt
+		else
+			echo "Not a recognized AMD CPU."
+fi
+
 # Check for an NVidia card, if there is one write the temps to sensors.txt
 NVIDIASMI=/usr/bin/nvidia-smi
 if [ -f "$NVIDIASMI" ]; then
@@ -396,7 +404,7 @@ if [ -f "$NVIDIASMI" ]; then
         echo "*** NVidia GPU Temperature ***" >> /home/$USER/Desktop/sensors.txt
         echo "NVidia GPU: $NVIDIAGPUTEMP" >> /home/$USER/Desktop/sensors.txt
 fi
-
+sensors | grep "Tdie:" | cut -c 15-
 # testing nvme status - write to sensors.txt
 
 if [ -n "$NVME" ]; then
