@@ -322,9 +322,11 @@ if [ -d "/proc/acpi/button/lid" ]; then
 	fi
 	# display the resolution
 	xrandr | grep -m1 connected | tr -d "_" >> /home/$USER/Desktop/specs.tex
+    printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
     # Take an average watts measurement on idle
     echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw for 60 seconds! ${LTBLUE}*** ${NC}"
+    printf "IDLE " >> /home/$USER/Desktop/specs.tex
     sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
 
 	# fix mouse cannot right or left click when laptop lid is closed
