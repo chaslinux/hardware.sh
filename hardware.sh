@@ -6,6 +6,7 @@
 WHITE='\033[1;37m'
 NC='\033[0m'
 LTGREEN='\033[1;32m'
+LTBLUE='\033[1;34m'
 PURPLE='\033[1;35m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -325,13 +326,18 @@ if [ -d "/proc/acpi/button/lid" ]; then
     printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
     # Take an average watts measurement on idle
-    echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw for 60 seconds! ${LTBLUE}*** ${NC}"
+    echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw on IDLE for 60 seconds! ${LTBLUE}*** ${NC}"
     printf "IDLE " >> /home/$USER/Desktop/specs.tex
+    sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
+    printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+
+    echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw w/ video for 60 seconds! ${LTBLUE}*** ${NC}"
+    printf "Playing YouTube video " >> /home/Desktop/specs.tex
+    firefox --private-window "https://www.youtube.com/watch?v=PEFqdqRr18E&autoplay=1"
     sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
 
 	# fix mouse cannot right or left click when laptop lid is closed
 	sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
-
 fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
