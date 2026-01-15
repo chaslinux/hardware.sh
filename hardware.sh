@@ -31,6 +31,7 @@ sudo apt -y install nvme-cli # add tools to query nvme status
 sudo apt -y install pango1.0-tools sysbench glmark2 imagemagick
 sudo apt -y install img2pdf
 sudo apt -y install lm-sensors # install lm-sensors to detect temperatures
+sudo apt -y install powerstat
 
 # Variables
 CURRENTDIR=$(pwd)
@@ -321,6 +322,10 @@ if [ -d "/proc/acpi/button/lid" ]; then
 	fi
 	# display the resolution
 	xrandr | grep -m1 connected | tr -d "_" >> /home/$USER/Desktop/specs.tex
+
+    # Take an average watts measurement on idle
+    echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw for 60 seconds! ${LTBLUE}*** ${NC}"
+    sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
 
 	# fix mouse cannot right or left click when laptop lid is closed
 	sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
