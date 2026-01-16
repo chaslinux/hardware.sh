@@ -331,13 +331,15 @@ if [ -d "/proc/acpi/button/lid" ]; then
     sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
     printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
-    echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw w/ video for 60 seconds! ${LTBLUE}*** ${NC}"
-    printf "Playing YouTube video " >> /home/Desktop/specs.tex
-    firefox --private-window "https://www.youtube.com/watch?v=PEFqdqRr18E&autoplay=1"
+    echo -e "${LTBLUE}***\e[5m${WHITE} Measuring Power Draw w/ Firefox for 70 seconds\e[0m ${LTBLUE}*** ${NC}"
+    sleep 10
+    printf "Firefox open Youtube " >> /home/$USER/Desktop/specs.tex
+    firefox --private-window "https://www.youtube.com/watch?v=PEFqdqRr18E&autoplay=1" &
     sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
-
-	# fix mouse cannot right or left click when laptop lid is closed
-	sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
+    pkill -f "firefox.*"
+    
+    # fix mouse cannot right or left click when laptop lid is closed
+    sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
 fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
