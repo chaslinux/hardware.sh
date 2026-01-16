@@ -330,13 +330,6 @@ if [ -d "/proc/acpi/button/lid" ]; then
     printf "IDLE " >> /home/$USER/Desktop/specs.tex
     sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
     printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
-
-    echo -e "${LTBLUE}***\e[5m${WHITE} Measuring Power Draw w/ Firefox -- Please DO NOT CLOSE\e[0m ${LTBLUE}*** ${NC}"
-    sleep 10
-    printf "Firefox open Youtube " >> /home/$USER/Desktop/specs.tex
-    firefox --private-window "https://www.youtube.com/" 
-    sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
-    pkill -f "firefox.*"
     
     # fix mouse cannot right or left click when laptop lid is closed
     sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
