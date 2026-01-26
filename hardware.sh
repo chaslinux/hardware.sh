@@ -33,6 +33,7 @@ sudo apt -y install pango1.0-tools sysbench glmark2 imagemagick
 sudo apt -y install img2pdf
 sudo apt -y install lm-sensors # install lm-sensors to detect temperatures
 sudo apt -y install powerstat
+sudo apt -y install v4l-utils # install tools for working with webcams
 
 # Variables
 CURRENTDIR=$(pwd)
@@ -71,6 +72,13 @@ MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" |
 
 if [ $OSRELEASE=="21.3" ]; then
 	sudo sed -i '/<policy domain="coder" rights="none" pattern="PDF" \/>/d' /etc/ImageMagick-6/policy.xml 
+fi
+
+### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
+if [ $FAMILY=="ThinkPad X240" ]; then
+    sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger
 fi
 
 ###################################################

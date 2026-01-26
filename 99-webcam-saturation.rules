@@ -1,0 +1,1 @@
+SUBSYSTEM=="video4linux", KERNEL=="video*", ACTION=="add", RUN+="/usr/bin/v4l2-ctl -d /dev/%k --set-ctrl=saturation=20"
