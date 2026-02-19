@@ -81,6 +81,13 @@ if [ $FAMILY=="ThinkPad X240" ]; then
     sudo udevadm trigger
 fi
 
+# Sony VAIO VPCSB190S has issues with saturation
+if [ $PROD2=="VPCSB190S" ]; then
+    sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger
+fi
+
 ###################################################
 ### This area is for the benchmarks development ###
 ###################################################
