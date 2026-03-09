@@ -69,12 +69,12 @@ DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
 
 # Is this Debian
 if [ $DEBIANCHECK=="Debian" ]; then
-    if grep -q 'export PATH="$PATH:/usr/sbin"' ~/.profile; then # if the path exists, do nothing
+    if grep -q 'export PATH="$PATH:/usr/sbin"' ~/.bashrc; then # if the path exists, do nothing
         echo "The user can access /usr/sbin already, so not adding it."
     else # add the path to the current user profile so tools like nvme can run
         echo "Adding /usr/sbin to current user's .profile"
-        echo 'export PATH="$PATH:/usr/sbin"' >> ~/.profile
-        source ~/.profile
+        echo 'export PATH="$PATH:/usr/sbin"' >> ~/.bashrc
+        source ~/.bashrc
     fi
 fi
 
