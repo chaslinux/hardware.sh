@@ -65,7 +65,7 @@ NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
 SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
 MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
-DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c 6-)
+DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
 
 # Is this Debian
 if [ $DEBIANCHECK=="Debian" ]; then
