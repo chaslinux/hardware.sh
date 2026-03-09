@@ -65,6 +65,19 @@ NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
 SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
 MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
+DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c 6-)
+
+# Is this Debian
+if [ $DEBIANCHECK=="Debian" ]; then
+    if grep -q 'export PATH="$PATH:/usr/sbin"' ~/.profile; then # if the path exists, do nothing
+        echo "The user can access /usr/sbin already, so not adding it."
+    else # add the path to the current user profile so tools like nvme can run
+        echo "Adding /usr/sbin to current user's .profile"
+        echo 'export PATH="$PATH:/usr/sbin"' >> ~/.profile
+        source ~/.profile
+    fi
+fi
+
 
 ### There is a bug in the ghostscript included with Imagemagick in Linux Mint 21.3
 ### that prevents convert from converting images to PDFs. It's a security issue so
