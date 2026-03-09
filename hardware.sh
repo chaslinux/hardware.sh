@@ -67,16 +67,6 @@ SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
 MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
 DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
 
-### There is a bug in the ghostscript included with Imagemagick in Linux Mint 21.3
-### that prevents convert from converting images to PDFs. It's a security issue so
-### the team blocked using ImageMagick to create PDFs in policy.xml.
-### The following lines comment out that line in policy.xml so we can convert our
-### images to PDF. At the end of the file we remove the comment.
-
-if [ $OSRELEASE=="21.3" ]; then
-	sudo sed -i '/<policy domain="coder" rights="none" pattern="PDF" \/>/d' /etc/ImageMagick-6/policy.xml 
-fi
-
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
 if [ $FAMILY=="ThinkPad X240" ]; then
     sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
@@ -375,12 +365,6 @@ if ping -c 1 -W 1 truenas ; then
 	smbclient //truenas/share -U "linuxuser" -c "put $SERIALNO.pdf $SERIALNO.pdf"
 else
 	echo "Done, this is not at The Working Centre, so exiting here."
-fi
-
-### Now re-enable the PDF blocking policy in Linux Mint 21.3
-if [ $OSRELEASE=="21.3" ]; then
-	POLICYCOUNT=$(wc -l < /etc/ImageMagick-6/policy.xml)
-	sudo sed -i "$POLICYCOUNT i\\<policy domain=\"coder\" rights=\"none\" pattern=\"PDF\" />\\" /etc/ImageMagick-6/policy.xml
 fi
 
 cd /home/$USER/Desktop || exit
