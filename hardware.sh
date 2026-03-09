@@ -19,6 +19,8 @@ sudo apt upgrade -y
 
 # Install software for LaTeX, PDF creation, and benchmarking
 echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation !${LTGREEN}*** ${NC}"
+sudo apt -y install lshw # list hardware
+sudo apt -y install mesa-utils # for glxinfo
 sudo apt -y install smbclient # so we can copy the serialno.pdf to our TrueNAS server
 sudo apt -y install smartmontools # for hard drives
 sudo apt -y install libcdio-utils # for cd-drives
