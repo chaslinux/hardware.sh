@@ -51,8 +51,8 @@ VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
-NVME=$(nvme list | grep nvme)
-NVMENAME=$(nvme list | grep nvme | cut -c -12)
+NVME=$(sudo nvme list | grep nvme)
+NVMENAME=$(sudo nvme list | grep nvme | cut -c -12)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
@@ -66,12 +66,6 @@ echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient 
 SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
 MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
 DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
-
-# Is this Debian
-if [ $DEBIANCHECK=="Debian" ]; then
-    export PATH="$PATH:/usr/sbin"
-fi
-
 
 ### There is a bug in the ghostscript included with Imagemagick in Linux Mint 21.3
 ### that prevents convert from converting images to PDFs. It's a security issue so
