@@ -36,6 +36,7 @@ sudo apt -y install img2pdf
 sudo apt -y install lm-sensors # install lm-sensors to detect temperatures
 sudo apt -y install powerstat
 sudo apt -y install v4l-utils # install tools for working with webcams
+sudo apt install rfkill -y # for bluetooth detection
 
 # Variables
 CURRENTDIR=$(pwd)
@@ -66,9 +67,10 @@ echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient 
 SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
 MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
 DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
+BTVERSION=$(hciconfig -a | grep "LMP Version:" | cut -c 15- | cut -c -3)
 
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
-if [ $FAMILY=="ThinkPad X240" ]; then
+if [[ "$FAMILY"=="ThinkPad X240" ]]; then
     sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
     sudo udevadm control --reload-rules
     sudo udevadm trigger
@@ -347,14 +349,32 @@ fi
 echo "\section{Operating System}" >> /home/$USER/Desktop/specs.tex
 echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/$USER/Desktop/specs.tex
 
-echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
-printf '\\end{document}\n' >> /home/$USER/Desktop/specs.tex
-cd /home/$USER/Desktop || exit
+# Wifi and Bluetooth logos
+echo "\section{Standards}" >> /home/$USER/Desktop/specs.tex
 
+if sudo iw dev | grep -qi Interface; then
+    cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
+    echo "\includegraphics{wifilogo.png}" >>  /home/$USER/Desktop/specs.tex
+else
+    echo "No Wifi"
+fi
+if sudo rfkill list | grep -qi bluetooth; then
+    cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
+    echo "\includegraphics{btlogo.png}" >> /home/$USER/Desktop/specs.tex
+    echo "Bluetooth $BTVERSION"
+else
+    echo "No Bluetooth"
+fi
 
 ##########################
 ### Now create the PDF ###
 ##########################
+
+ # close the document
+echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
+printf '\\end{document}\n' >> /home/$USER/Desktop/specs.tex
+cd /home/$USER/Desktop || exit
+
 
 # the line below strips out any underscores _ from specs.tex
 sed -i s/_//g specs.tex
