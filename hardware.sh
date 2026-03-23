@@ -163,6 +163,7 @@ fi
 
 # First output the title
 printf '\\maketitle\n' >> /home/$USER/Desktop/specs.tex
+printf '\\vspace{-5em}' >> /home/$USER/Desktop/specs.tex
 
 # Now let's create the barcode
 # if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/$USER/Desktop/barcode.txt
