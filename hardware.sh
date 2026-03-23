@@ -36,7 +36,8 @@ sudo apt -y install img2pdf
 sudo apt -y install lm-sensors # install lm-sensors to detect temperatures
 sudo apt -y install powerstat
 sudo apt -y install v4l-utils # install tools for working with webcams
-sudo apt install rfkill -y # for bluetooth detection
+sudo apt -y install rfkill # for bluetooth detection
+sudo apt -y install iw # install iw because it isn't present if you don't activate wifi before installation.
 
 # Variables
 CURRENTDIR=$(pwd)
