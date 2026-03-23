@@ -154,7 +154,7 @@ if [ ! -f /home/$USER/Desktop/specs.tex ]; then
 	{
 	printf '\\documentclass{article}\n'
 	printf '\\usepackage{parskip}\n'
-	printf '\\usepackage[legalpaper, portrait, margin=0.5in]{geometry}\n'
+	printf '\\usepackage[legalpaper, portrait, top=0.15in]{geometry}\n'
 	printf '\\usepackage{graphicx}\n'
 	printf '\\title{System Specifications}\n'
 	printf '\\begin{document}\n'
@@ -302,7 +302,7 @@ done
 # If there's none then nothing happens
 if lshw -short | grep cdrom; then
 	{
-		echo "\section{DVDDrive}" 
+		echo "\\section{DVDDrive}" 
 		cd-drive | grep Vendor | tr -d "_"
 		echo "\quad" 
 		cd-drive | grep Model | tr -d "_"
@@ -313,21 +313,21 @@ fi
 
 #detect network card information
 {
-	echo "\section{Network}" 
+	echo "\\section{Network}" 
 #	sudo lshw -class network | grep product
 	echo "$NETWORK" | tr -d "_"
 } >> /home/$USER/Desktop/specs.tex
 
 #detect sound card information
 {
-	echo "\section{Sound}"
+	echo "\\section{Sound}"
 	sudo lshw -class sound | grep -m 1 product | tr -d "_"
 } >> /home/$USER/Desktop/specs.tex
 
 echo -e "${LTGREEN}*** ${WHITE}Detecting Laptop-specific hardware ! ${LTGREEN}*** ${NC}"
 if [ -d "/proc/acpi/button/lid" ]; then
 	# install necessary extra software
-	echo "\section{Laptop Specific}" >> /home/$USER/Desktop/specs.tex
+	echo "\\section{Laptop Specific}" >> /home/$USER/Desktop/specs.tex
 	if acpi -V | grep "design capacity"; then
 		acpi -V | grep "design capacity" | tr -d "_" >> /home/$USER/Desktop/specs.tex
 		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
@@ -347,11 +347,11 @@ if [ -d "/proc/acpi/button/lid" ]; then
 fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
-echo "\section{Operating System}" >> /home/$USER/Desktop/specs.tex
+echo "\\section{Operating System}" >> /home/$USER/Desktop/specs.tex
 echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/$USER/Desktop/specs.tex
 
 # Wifi and Bluetooth logos
-echo "\section{Standards}" >> /home/$USER/Desktop/specs.tex
+echo "\\section{Standards}" >> /home/$USER/Desktop/specs.tex
 
 if sudo iw dev | grep -qi Interface; then
     cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
