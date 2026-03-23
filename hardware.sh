@@ -400,6 +400,8 @@ rm /home/$USER/Desktop/benchmarks.png > /dev/null
 # rm /home/$USER/Desktop/small_display.log > /dev/null
 # rm /home/$USER/Desktop/small_display.aux > /dev/null
 rm /home/$USER/Desktop/title.png > /dev/null
+rm /home/$USER/Desktop/wifilogo.png > /dev/null
+rm /home/$USER/Desktop/btlogo.png > /dev/null
 
 # Now remove the specs.pdf because we've created SERIALNO.PDF
 rm specs.pdf  > /dev/null
