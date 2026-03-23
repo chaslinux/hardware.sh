@@ -154,7 +154,7 @@ if [ ! -f /home/$USER/Desktop/specs.tex ]; then
 	{
 	printf '\\documentclass{article}\n'
 	printf '\\usepackage{parskip}\n'
-	printf '\\usepackage[legalpaper, portrait, top=0.05in, bottom=0.05in, left=0.5in, right=0.5in]{geometry}\n'
+	printf '\\usepackage[legalpaper, portrait, margin=0.5in]{geometry}\n'
 	printf '\\usepackage{graphicx}\n'
 	printf '\\title{System Specifications}\n'
 	printf '\\begin{document}\n'
