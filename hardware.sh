@@ -317,7 +317,23 @@ fi
 	echo "\\section{Network}" 
 #	sudo lshw -class network | grep product
 	echo "$NETWORK" | tr -d "_"
+	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex	
 } >> /home/$USER/Desktop/specs.tex
+# Wifi and Bluetooth logos
+if sudo rfkill list | grep -qi bluetooth; then
+    echo "Bluetooth $BTVERSION" >> /home/$USER/Desktop/specs.tex
+    printf '\\newline\n' >> /home/$USER/Desktop/specs.tex	
+    cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
+    echo "\\raisebox{-0.3ex}{\includegraphics{btlogo.png}}" >> /home/$USER/Desktop/specs.tex
+else
+    echo "No Bluetooth"
+fi
+if sudo iw dev | grep -qi Interface; then
+    cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
+    echo "\\raisebox{-0.3ex}{\includegraphics{wifilogo.png}}" >>  /home/$USER/Desktop/specs.tex
+else
+    echo "No Wifi"
+fi
 
 #detect sound card information
 {
@@ -350,23 +366,6 @@ fi
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
 echo "\\section{Operating System}" >> /home/$USER/Desktop/specs.tex
 echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/$USER/Desktop/specs.tex
-
-# Wifi and Bluetooth logos
-echo "\\section{Standards}" >> /home/$USER/Desktop/specs.tex
-
-if sudo iw dev | grep -qi Interface; then
-    cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
-    echo "\includegraphics{wifilogo.png}" >>  /home/$USER/Desktop/specs.tex
-else
-    echo "No Wifi"
-fi
-if sudo rfkill list | grep -qi bluetooth; then
-    cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
-    echo "\includegraphics{btlogo.png}" >> /home/$USER/Desktop/specs.tex
-    echo "Bluetooth $BTVERSION"
-else
-    echo "No Bluetooth"
-fi
 
 ##########################
 ### Now create the PDF ###
