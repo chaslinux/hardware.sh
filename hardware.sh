@@ -324,10 +324,10 @@ if sudo rfkill list | grep -qi bluetooth; then
 	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 	cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
 	echo "\\raisebox{-0.3ex}{\includegraphics{btlogo.png}}" >> /home/$USER/Desktop/specs.tex
-	echo "&" >> /home/$USER/Desktop/specs.tex
 else
 	echo "No Bluetooth"
 fi
+echo "&" >> /home/$USER/Desktop/specs.tex
 if [[ "$WIFIVERSION" ]]; then
 	printf '%s\n\\newline\n' "$WIFIVERSION" >> /home/$USER/Desktop/specs.tex
 	cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
