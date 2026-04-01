@@ -315,12 +315,16 @@ fi
 	echo "$NETWORK" | tr -d "_"
 	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 } >> /home/$USER/Desktop/specs.tex
+
 # Wifi and Bluetooth logos
+echo "\begin{table}[]" >> /home/$USER/Desktop/specs.tex
+echo "\begin{tabular}{cc}" >> /home/$USER/Desktop/specs.tex
 if sudo rfkill list | grep -qi bluetooth; then
 	echo "Bluetooth $BTVERSION" >> /home/$USER/Desktop/specs.tex
 	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 	cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
 	echo "\\raisebox{-0.3ex}{\includegraphics{btlogo.png}}" >> /home/$USER/Desktop/specs.tex
+	echo "&" >> /home/$USER/Desktop/specs.tex
 else
 	echo "No Bluetooth"
 fi
@@ -331,6 +335,8 @@ if [[ "$WIFIVERSION" ]]; then
 else
 	echo "No Wifi"
 fi
+echo "\end{tabular}" >> /home/$USER/Desktop/specs.tex
+echo "\end{table}" >> /home/$USER/Desktop/specs.tex
 
 #detect sound card information
 {
