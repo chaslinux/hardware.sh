@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2022, 2023, 2024, 2025 Charles McColm, chaslinux@gmail.com
+# Copyright 2022, 2023, 2024, 2025, 2026 Charles McColm, chaslinux@gmail.com
 # Licensed under GPLv3, the General Public License v3.0
 
 # Add some colour to the script
@@ -15,7 +15,7 @@ CYAN='\033[1;36m'
 # update the system because the script might not work if old software is installed
 sudo apt update
 echo -e "${LTGREEN}***${CYAN}\e[5m Running updates !  \e[0m${LTGREEN}*** ${NC}"
-sudo apt upgrade -y 
+sudo apt upgrade -y
 
 # Install software for LaTeX, PDF creation, and benchmarking
 echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation !${LTGREEN}*** ${NC}"
@@ -69,19 +69,20 @@ SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
 MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
 DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
 BTVERSION=$(hciconfig -a | grep "LMP Version:" | cut -c 15- | cut -c -3)
+WIFIVERSION=$(bash -efu "$CURRENTDIR/wifi.sh" 2>/dev/null)
 
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
 if [[ "$FAMILY"=="ThinkPad X240" ]]; then
-    sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
-    sudo udevadm control --reload-rules
-    sudo udevadm trigger
+	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
+	sudo udevadm control --reload-rules
+	sudo udevadm trigger
 fi
 
 # Sony VAIO VPCSB190S has issues with saturation
 if [ $PROD2=="VPCSB190S" ]; then
-    sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
-    sudo udevadm control --reload-rules
-    sudo udevadm trigger
+	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
+	sudo udevadm control --reload-rules
+	sudo udevadm trigger
 fi
 
 ###################################################
@@ -153,12 +154,12 @@ if [ ! -f /home/$USER/Desktop/specs.tex ]; then
 	echo "creating /home/$USER/Desktop/specs.tex"
 	touch /home/$USER/Desktop/specs.tex
 	{
-	printf '\\documentclass{article}\n'
-	printf '\\usepackage{parskip}\n'
-	printf '\\usepackage[legalpaper, portrait, margin=0.5in]{geometry}\n'
-	printf '\\usepackage{graphicx}\n'
-	printf '\\title{System Specifications}\n'
-	printf '\\begin{document}\n'
+		printf '\\documentclass{article}\n'
+		printf '\\usepackage{parskip}\n'
+		printf '\\usepackage[legalpaper, portrait, margin=0.5in]{geometry}\n'
+		printf '\\usepackage{graphicx}\n'
+		printf '\\title{System Specifications}\n'
+		printf '\\begin{document}\n'
 	} >> /home/$USER/Desktop/specs.tex
 fi
 
@@ -190,25 +191,24 @@ pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
 # detect Model/Mfg information
 echo -e "${LTGREEN}*** ${WHITE}Detecting system information ! ${LTGREEN}*** ${NC}"
 echo "\section{Model}" >> /home/$USER/Desktop/specs.tex
-if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]
-	then
-		{
+if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]; then
+	{
 		echo "Motherboard: " "$MMFG" "Model: " "$MMODEL" | tr -d "_"
 		printf '\\newline\n'
-		} >> /home/$USER/Desktop/specs.tex
+	} >> /home/$USER/Desktop/specs.tex
 fi
 {
-	sudo dmidecode -t 1 | grep "Manufacturer" 
-	echo "\quad" 
+	sudo dmidecode -t 1 | grep "Manufacturer"
+	echo "\quad"
 	sudo dmidecode -t 1 | grep "Product Name" | tr -d "_"
-	printf '\\newline\n' 
+	printf '\\newline\n'
 	sudo dmidecode -t 1 | grep "Family" | tr -d "_"
-	echo "\quad" 
+	echo "\quad"
 	sudo dmidecode -t 1 | grep "Serial" | tr -d "_"
-	printf '\\newline\n' 
-	echo "\includegraphics{serial.pdf}" 
+	printf '\\newline\n'
+	echo "\includegraphics{serial.pdf}"
 	echo "\includegraphics{results.pdf}"
-	printf '\\newline\n' 
+	printf '\\newline\n'
 } >> /home/$USER/Desktop/specs.tex
 
 # Now remove all the files that got created to generate the pdf
@@ -225,41 +225,41 @@ rm barcode.txt barcode.eps barcode.pdf
 	sudo dmidecode -t 4 | grep "Core Count"
 	printf '\\quad\n'
 	sudo dmidecode -t 4 | grep "Thread Count"
-	printf '\\newline\n' 
+	printf '\\newline\n'
 } >> /home/$USER/Desktop/specs.tex
 
 #detect RAM information
 {
 	printf '\\section{RAM}\n'
-	#vmstat -sS M | grep "total memory" 
-	#lshw -c memory | grep size 
+	#vmstat -sS M | grep "total memory"
+	#lshw -c memory | grep size
 	sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//'
 	echo "\quad"
 	sudo dmidecode -t memory | grep "Maximum Capacity"
 	echo "\quad"
 	# unfortunately some manufacurers put SDRAM in place of DDR2, DDR3, so this may not show
-	sudo dmidecode -t 17 | grep -m 1 "Type: DDR" 
-	printf '\\newline\n' 
-	sudo dmidecode -t 17 | grep "Configured Memory Speed" 
+	sudo dmidecode -t 17 | grep -m 1 "Type: DDR"
+	printf '\\newline\n'
+	sudo dmidecode -t 17 | grep "Configured Memory Speed"
 } >> /home/$USER/Desktop/specs.tex
 
 #detect GRAPHICS information
 {
-printf '\\section{GRAPHICS}\n'
-sudo lshw -C Display | grep product | sed 's/&//g'
-printf '\\newline\n'  # this and the following line added 20/01/2023
+	printf '\\section{GRAPHICS}\n'
+	sudo lshw -C Display | grep product | sed 's/&//g'
+	printf '\\newline\n'  # this and the following line added 20/01/2023
 } >> /home/$USER/Desktop/specs.tex
 
 if [[ $VLEN -gt 2 ]]
 	then
-		echo "$VRAM" >> /home/$USER/Desktop/specs.tex 
+		echo "$VRAM" >> /home/$USER/Desktop/specs.tex
 	else
 		glxinfo | grep "Total available memory" | cut -c 5- >> /home/$USER/Desktop/specs.tex
 fi
 
 {
-	printf '\\newline\n' 
-	glxinfo | grep "OpenGL version" 
+	printf '\\newline\n'
+	glxinfo | grep "OpenGL version"
 } >> /home/$USER/Desktop/specs.tex
 
 #detect hard drive
@@ -273,66 +273,63 @@ if [ -n "$EMMC" ];
 fi
 
 if lshw -short | grep nvme; then
-    {
+	{
 	lshw -short | grep -m1 nvme | cut -c 17- | tr -d "_"
-	printf '\\newline\n' 
+	printf '\\newline\n'
 	} >> /home/$USER/Desktop/specs.tex
 fi
 
 for SDDRIVE in $SDDRIVE; do
+	HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
+	if [ ! -z "$HDDFAMILY" ]; then
+#		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/$USER/Desktop/specs.tex
+#		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
-		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
-		if [ ! -z "$HDDFAMILY" ];	
+		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | tr -d "_" >> /home/$USER/Desktop/specs.tex
+		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
-		then
-#				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/$USER/Desktop/specs.tex
-#				printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
-
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | tr -d "_" >> /home/$USER/Desktop/specs.tex
-				printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
-
-				sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/$USER/Desktop/specs.tex
-				printf '\\newline\n' >> /home/$USER/Desktop/specs.tex	
-
-		else
-				echo "This is not actually a hard drive, nor an SSD, but a media drive."
-		fi
+		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/$USER/Desktop/specs.tex
+		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+	else
+		echo "This is not actually a hard drive, nor an SSD, but a media drive."
+	fi
 done
 
 # detect CD/DVD drive
 # If there's none then nothing happens
 if lshw -short | grep cdrom; then
 	{
-		echo "\\section{DVDDrive}" 
+		echo "\\section{DVDDrive}"
 		cd-drive | grep Vendor | tr -d "_"
-		echo "\quad" 
+		echo "\quad"
 		cd-drive | grep Model | tr -d "_"
-		echo "\quad" 
+		echo "\quad"
 		cd-drive | grep Revision | tr -d "_"
 	} >> /home/$USER/Desktop/specs.tex
 fi
 
-#detect network card information
+# Detect network card information
 {
-	echo "\\section{Network}" 
+	echo "\\section{Network}"
 #	sudo lshw -class network | grep product
 	echo "$NETWORK" | tr -d "_"
-	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex	
+	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 } >> /home/$USER/Desktop/specs.tex
 # Wifi and Bluetooth logos
 if sudo rfkill list | grep -qi bluetooth; then
-    echo "Bluetooth $BTVERSION" >> /home/$USER/Desktop/specs.tex
-    printf '\\newline\n' >> /home/$USER/Desktop/specs.tex	
-    cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
-    echo "\\raisebox{-0.3ex}{\includegraphics{btlogo.png}}" >> /home/$USER/Desktop/specs.tex
+	echo "Bluetooth $BTVERSION" >> /home/$USER/Desktop/specs.tex
+	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+	cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
+	echo "\\raisebox{-0.3ex}{\includegraphics{btlogo.png}}" >> /home/$USER/Desktop/specs.tex
 else
-    echo "No Bluetooth"
+	echo "No Bluetooth"
 fi
-if sudo iw dev | grep -qi Interface; then
-    cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
-    echo "\\raisebox{-0.3ex}{\includegraphics{wifilogo.png}}" >>  /home/$USER/Desktop/specs.tex
+if [[ "$WIFIVERSION" ]]; then
+	printf '%s\n\\newline\n' "$WIFIVERSION" >> /home/$USER/Desktop/specs.tex
+	cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
+	echo "\\raisebox{-0.3ex}{\includegraphics{wifilogo.png}}" >>  /home/$USER/Desktop/specs.tex
 else
-    echo "No Wifi"
+	echo "No Wifi"
 fi
 
 #detect sound card information
@@ -351,16 +348,16 @@ if [ -d "/proc/acpi/button/lid" ]; then
 	fi
 	# display the resolution
 	xrandr | grep -m1 connected | tr -d "_" >> /home/$USER/Desktop/specs.tex
-    printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
-    # Take an average watts measurement on idle
-    echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw on IDLE for 60 seconds! ${LTBLUE}*** ${NC}"
-    printf "IDLE " >> /home/$USER/Desktop/specs.tex
-    sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
-    printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
-    
-    # fix mouse cannot right or left click when laptop lid is closed
-    sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
+	# Take an average watts measurement on idle
+	echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw on IDLE for 60 seconds! ${LTBLUE}*** ${NC}"
+	printf "IDLE " >> /home/$USER/Desktop/specs.tex
+	sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
+	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+
+	# fix mouse cannot right or left click when laptop lid is closed
+	sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
 fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
@@ -371,7 +368,7 @@ echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/$USER/Desktop/specs.tex
 ### Now create the PDF ###
 ##########################
 
- # close the document
+# close the document
 echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
 printf '\\end{document}\n' >> /home/$USER/Desktop/specs.tex
 cd /home/$USER/Desktop || exit
@@ -408,7 +405,6 @@ rm /home/$USER/Desktop/btlogo.png > /dev/null
 rm specs.pdf  > /dev/null
 rm results.pdf > /dev/null
 
-
 if [ -f /home/$USER/Desktop/small_display.thm ]; then
 	rm /home/$USER/Desktop/small_display.thm
 fi
@@ -417,64 +413,63 @@ fi
 echo -e "${RED}*** ${WHITE}\e[5m Detecting sensors - This may take 45 seconds \e[0m ${RED}*** ${NC}"
 sudo sensors-detect --auto > /dev/null
 if [ -n "$COREDETECT" ]; then
-            echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
-		    sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
-        else
-            echo "Cores may be referred to as something else, so for now not showing temps"
+	echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
+	sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
+else
+	echo "Cores may be referred to as something else, so for now not showing temps"
 fi
 
 if [ -n "$AMDTDIE" ]; then
-			echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
-			echo "AMD CPU Temperature average: $AMDTDIE " >> /home/$USER/Desktop/sensors.txt
-		else
-			echo "Not a recognized AMD CPU."
+	echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
+	echo "AMD CPU Temperature average: $AMDTDIE " >> /home/$USER/Desktop/sensors.txt
+else
+	echo "Not a recognized AMD CPU."
 fi
 
 # Check for an NVidia card, if there is one write the temps to sensors.txt
 NVIDIASMI=/usr/bin/nvidia-smi
 if [ -f "$NVIDIASMI" ]; then
-        NVIDIAGPUTEMP=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader)
-        echo "*** NVidia GPU Temperature ***" >> /home/$USER/Desktop/sensors.txt
-        echo "NVidia GPU: $NVIDIAGPUTEMP" >> /home/$USER/Desktop/sensors.txt
+	NVIDIAGPUTEMP=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader)
+	echo "*** NVidia GPU Temperature ***" >> /home/$USER/Desktop/sensors.txt
+	echo "NVidia GPU: $NVIDIAGPUTEMP" >> /home/$USER/Desktop/sensors.txt
 fi
 sensors | grep "Tdie:" | cut -c 15-
 # testing nvme status - write to sensors.txt
 
 if [ -n "$NVME" ]; then
-    NVMEDATAREAD=$(sudo nvme smart-log $NVMENAME | grep "Data Units Read")
-    NVMEDATAWRITTEN=$(sudo nvme smart-log $NVMENAME | grep "Data Units Written")
-    echo "Writing NVME read/write to sensors.txt data file"
-    echo -e "\n" >> /home/$USER/Desktop/sensors.txt
-    echo "*** NVMe Read/Write Information ***" >> /home/$USER/Desktop/sensors.txt
-    echo $NVMEDATAREAD >> /home/$USER/Desktop/sensors.txt
-    echo $NVMEDATAWRITTEN >> /home/$USER/Desktop/sensors.txt
+	NVMEDATAREAD=$(sudo nvme smart-log $NVMENAME | grep "Data Units Read")
+	NVMEDATAWRITTEN=$(sudo nvme smart-log $NVMENAME | grep "Data Units Written")
+	echo "Writing NVME read/write to sensors.txt data file"
+	echo -e "\n" >> /home/$USER/Desktop/sensors.txt
+	echo "*** NVMe Read/Write Information ***" >> /home/$USER/Desktop/sensors.txt
+	echo $NVMEDATAREAD >> /home/$USER/Desktop/sensors.txt
+	echo $NVMEDATAWRITTEN >> /home/$USER/Desktop/sensors.txt
 else
-    echo "This computer does not have an NVMe drive"
+	echo "This computer does not have an NVMe drive"
 fi
 
 # Write SSD Life information to sensors.txt
 
 for SDDRIVE in $SDDRIVE; do
-		HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
-		if [ ! -z "$HDDFAMILY" ];	
-		then
-            SSDTEST=$(sudo smartctl -i $SDDRIVE | grep "TRIM")
-            if [ -n "$SSDTEST" ]; then
-                SSDWRITES=$(sudo smartctl -a $SDDRIVE | grep "241" | cut -c 88-)
-                SSDREADS=$(sudo smartctl -a $SDDRIVE | grep "242" | cut -c 88-)
-                LBA=$(sudo smartctl -a $SDDRIVE | grep "241" | grep "LBA")
-                if [ -n "$LBA" ]; then
-                    SSDWRITES=$(( $SSDWRITES/2097152 ))
-                else 
-                    echo "Non-Samsung SSD"
-                fi
-                echo "*** Writing SSD Information ***"
-                echo "SSD Reads: $SSDREADS" >> /home/$USER/Desktop/sensors.txt
-                echo "SSD Writes: $SSDWRITES" >> /home/$USER/Desktop/sensors.txt
-            else
-                echo "No SSD"
-            fi
+	HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model")
+	if [ ! -z "$HDDFAMILY" ]; then
+		SSDTEST=$(sudo smartctl -i $SDDRIVE | grep "TRIM")
+		if [ -n "$SSDTEST" ]; then
+			SSDWRITES=$(sudo smartctl -a $SDDRIVE | grep "241" | cut -c 88-)
+			SSDREADS=$(sudo smartctl -a $SDDRIVE | grep "242" | cut -c 88-)
+			LBA=$(sudo smartctl -a $SDDRIVE | grep "241" | grep "LBA")
+			if [ -n "$LBA" ]; then
+				SSDWRITES=$(( $SSDWRITES/2097152 ))
+			else
+				echo "Non-Samsung SSD"
+			fi
+			echo "*** Writing SSD Information ***"
+			echo "SSD Reads: $SSDREADS" >> /home/$USER/Desktop/sensors.txt
+			echo "SSD Writes: $SSDWRITES" >> /home/$USER/Desktop/sensors.txt
 		else
-			echo "This is not actually a hard drive, nor an SSD, but a media drive."
+			echo "No SSD"
 		fi
+	else
+		echo "This is not actually a hard drive, nor an SSD, but a media drive."
+	fi
 done
