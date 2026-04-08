@@ -150,18 +150,14 @@ img2pdf /home/$USER/Desktop/results.png -o /home/$USER/Desktop/results.pdf
 
 echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGREEN}*** ${NC}"
 # create a latex document at /home/$USER/Desktop/specs.tex
-if [ ! -f /home/$USER/Desktop/specs.tex ]; then
-	echo "creating /home/$USER/Desktop/specs.tex"
-	touch /home/$USER/Desktop/specs.tex
-	{
-		printf '\\documentclass{article}\n'
-		printf '\\usepackage{parskip}\n'
-		printf '\\usepackage[legalpaper, portrait, margin=0.5in]{geometry}\n'
-		printf '\\usepackage{graphicx}\n'
-		printf '\\title{System Specifications}\n'
-		printf '\\begin{document}\n'
-	} >> /home/$USER/Desktop/specs.tex
-fi
+{
+	printf '\\documentclass{article}\n'
+	printf '\\usepackage{parskip}\n'
+	printf '\\usepackage[legalpaper, portrait, margin=0.5in]{geometry}\n'
+	printf '\\usepackage{graphicx}\n'
+	printf '\\title{System Specifications}\n'
+	printf '\\begin{document}\n'
+} > /home/$USER/Desktop/specs.tex # NOT >> for the first write
 
 # First output the title
 printf '\\maketitle\n' >> /home/$USER/Desktop/specs.tex
@@ -172,15 +168,15 @@ printf '\\vspace{-5em}' >> /home/$USER/Desktop/specs.tex
 # Wrap bottom statement in an IF statement or maybe set this as a varable before
 # 02/14/2023 - Happy Valentines Day - if SLEN is less than 4 characters it's not a proper serial number, use mac address
 echo -e "${LTGREEN}*** ${WHITE}Creating the barcode ! ${LTGREEN}*** ${NC}"
-if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be filled by O.E.M." || $SERIALNO == "Default string" || $SERIALNO =~ [^A-Za-z0-9] ]]
-	then    # set the serial number to the mac address if any of the above apply
-		echo "$FAMILY"
-		cat /sys/class/net/*/address | head -n 1 | sed 's/://g' | tr -d "_" >> /home/$USER/Desktop/barcode.txt
-		SERIALNO=$(cat /sys/class/net/*/address | head -n 1 | sed 's/://g')
-	else
-		echo "$FAMILY"
-		sudo dmidecode -t 1 | grep "Serial" | cut -c 17- | tr -d "_" >> /home/$USER/Desktop/barcode.txt
-		SERIALNO=$(sudo dmidecode -t 1 | grep "Serial" | cut -c 17-)
+if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be filled by O.E.M." || $SERIALNO == "Default string" || $SERIALNO =~ [^A-Za-z0-9] ]]; then
+	# set the serial number to the mac address if any of the above apply
+	echo "$FAMILY"
+	cat /sys/class/net/*/address | head -n 1 | sed 's/://g' | tr -d "_" >> /home/$USER/Desktop/barcode.txt
+	SERIALNO=$(cat /sys/class/net/*/address | head -n 1 | sed 's/://g')
+else
+	echo "$FAMILY"
+	sudo dmidecode -t 1 | grep "Serial" | cut -c 17- | tr -d "_" >> /home/$USER/Desktop/barcode.txt
+	SERIALNO=$(sudo dmidecode -t 1 | grep "Serial" | cut -c 17-)
 fi
 
 barcode -e "128" -g "144x72" -E -i /home/$USER/Desktop/barcode.txt  -o /home/$USER/Desktop/barcode.eps
@@ -250,11 +246,10 @@ rm barcode.txt barcode.eps barcode.pdf
 	printf '\\newline\n'  # this and the following line added 20/01/2023
 } >> /home/$USER/Desktop/specs.tex
 
-if [[ $VLEN -gt 2 ]]
-	then
-		echo "$VRAM" >> /home/$USER/Desktop/specs.tex
-	else
-		glxinfo | grep "Total available memory" | cut -c 5- >> /home/$USER/Desktop/specs.tex
+if [[ $VLEN -gt 2 ]]; then
+	echo "$VRAM" >> /home/$USER/Desktop/specs.tex
+else
+	glxinfo | grep "Total available memory" | cut -c 5- >> /home/$USER/Desktop/specs.tex
 fi
 
 {
@@ -265,11 +260,10 @@ fi
 #detect hard drive
 printf '\\section{HardDrive}\n' >> /home/$USER/Desktop/specs.tex
 # check for an eMMC drive
-if [ -n "$EMMC" ];
-	then
-		sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/$USER/Desktop/specs.tex
-	else
-		echo "No EMMC drive"
+if [ -n "$EMMC" ]; then
+	sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/$USER/Desktop/specs.tex
+else
+	echo "No EMMC drive"
 fi
 
 if lshw -short | grep nvme; then
@@ -317,26 +311,27 @@ fi
 } >> /home/$USER/Desktop/specs.tex
 
 # Wifi and Bluetooth logos
-echo "\begin{table}[]" >> /home/$USER/Desktop/specs.tex
-echo "\begin{tabular}{cc}" >> /home/$USER/Desktop/specs.tex
-if sudo rfkill list | grep -qi bluetooth; then
-	echo "Bluetooth $BTVERSION" >> /home/$USER/Desktop/specs.tex
-	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+# consider more "llll" left-justified columns (or c or r)
+echo "\begin{tabular}{@{}lll}" >> /home/$USER/Desktop/specs.tex
+LOGOS="" # to go on line(s) below the details:
+if [[ "$BTVERSION" ]]; then
+	echo "Bluetooth $BTVERSION &" >> /home/$USER/Desktop/specs.tex
 	cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
-	echo "\\raisebox{-0.3ex}{\includegraphics{btlogo.png}}" >> /home/$USER/Desktop/specs.tex
+	LOGOS="\\raisebox{-0.3ex}{\includegraphics{btlogo.png}} & "
 else
 	echo "No Bluetooth"
 fi
-echo "&" >> /home/$USER/Desktop/specs.tex
 if [[ "$WIFIVERSION" ]]; then
-	printf '%s\n\\newline\n' "$WIFIVERSION" >> /home/$USER/Desktop/specs.tex
+	# consider adding the "&" if more columns
+	echo "$WIFIVERSION" >> /home/$USER/Desktop/specs.tex
 	cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
-	echo "\\raisebox{-0.3ex}{\includegraphics{wifilogo.png}}" >>  /home/$USER/Desktop/specs.tex
+	LOGOS="$LOGOS\\raisebox{-0.3ex}{\includegraphics{wifilogo.png}}"
 else
 	echo "No Wifi"
 fi
+echo '\\' >> /home/$USER/Desktop/specs.tex # single-quoted for actual double \
+echo "$LOGOS" >> /home/$USER/Desktop/specs.tex
 echo "\end{tabular}" >> /home/$USER/Desktop/specs.tex
-echo "\end{table}" >> /home/$USER/Desktop/specs.tex
 
 #detect sound card information
 {
