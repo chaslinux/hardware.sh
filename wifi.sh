@@ -1,8 +1,9 @@
 #!/bin/bash -efu
 ######################################################################
 # What WiFi technology(ies) does this Linux machine have?
-# Written by "Nosey" Nick for / (C)opyright 2026 CR @ TWC
+# Written by NoseyNick for / (C)opyright 2026 CR @ TWC
 # All wrong righted. All rights reserved.
+# Licensed under GPLv3, the General Public License v3.0
 ######################################################################
 # ++++++++++ TODO: Support for MULTIPLE cards by breaking on "Wiphy phy2" lines?
 
