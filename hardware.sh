@@ -318,7 +318,7 @@ LOGOS="" # to go on line(s) below the details:
 if [[ "$BTVERSION" ]]; then
 	echo "Bluetooth $BTVERSION &" >> /home/$USER/Desktop/specs.tex
 	cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
-	LOGOS="\\raisebox{-0.3ex}{\includegraphics{btlogo.png}} & "
+	LOGOS="\\includegraphics{btlogo.png} & "
 else
 	echo "No Bluetooth"
 fi
@@ -326,7 +326,7 @@ if [[ "$WIFIVERSION" ]]; then
 	# consider adding the "&" if more columns
 	echo "$WIFIVERSION" >> /home/$USER/Desktop/specs.tex
 	cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
-	LOGOS="$LOGOS\\raisebox{-0.3ex}{\includegraphics{wifilogo.png}}"
+	LOGOS="$LOGOS\\includegraphics{wifilogo.png}"
 else
 	echo "No Wifi"
 fi
