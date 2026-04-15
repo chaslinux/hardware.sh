@@ -1,7 +1,8 @@
 #!/bin/bash -efu
 ######################################################################
 # What WiFi technology/generation does this Linux machine support?
-# Written by NoseyNick for / (C)opyright 2026 CR @ TWC
+# Written by NoseyNick, wifi-sh@noseynick.net
+# for / (C)opyright 2026 CR @ TWC
 # All wrong righted. All rights reserved.
 # Licensed under GPLv3, the General Public License v3.0
 ######################################################################
