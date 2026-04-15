@@ -1,5 +1,6 @@
 #!/bin/bash
 # Copyright 2022, 2023, 2024, 2025, 2026 Charles McColm, chaslinux@gmail.com
+# WiFi updates and tweaks by NoseyNick, wifi-sh@noseynick.net
 # Licensed under GPLv3, the General Public License v3.0
 
 # Add some colour to the script
