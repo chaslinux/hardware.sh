@@ -1,7 +1,7 @@
 ![specsheet](https://github.com/chaslinux/hardware.sh/assets/97259120/dbe65ec3-b93d-4c59-9a7b-51e1db569c8e)
 
 # hardware.sh
-Copyright 2022 Charles McColm <chaslinux@gmail.com>, 
+Copyright 2022,2023,2024,2025,2026 Charles McColm <chaslinux@gmail.com>, NoseyNick (2026),
 with thanks to Alan Pope: https://github.com/popey and Greg Korodi https://github.com/korger for many improvements.
 
 This and all files are licensed under GPLv3, the GNU General Public License v3.0.
