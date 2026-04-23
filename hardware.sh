@@ -42,6 +42,7 @@ sudo apt -y install iw # install iw because it isn't present if you don't activa
 
 # Variables
 CURRENTDIR=$(pwd)
+TBOEM="To Be Filled By O.E.M."
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- | tr -d "_")
 SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
@@ -84,6 +85,17 @@ if [ $PROD2=="VPCSB190S" ]; then
 	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
+fi
+
+# Check fields for To Be Filled by O.E.M.
+if [ $MMFG==$TBOEM ]; then
+    MMFG=$(sudo dmidecode -t baseboard | grep "Manufacturer:" | cut -c 16-)
+fi
+if [ $MMODEL==$TBOEM ]; then
+    MMODEL=$(sudo dmidecode -t baseboard | grep "Product Name:" | cut -c 16-)
+fi
+if [ $SERIALNO==$TBOEM ]; then
+    SERIALNO=$(cat /sys/class/net/*/address | head -n 1 | sed 's/://g')
 fi
 
 ###################################################
