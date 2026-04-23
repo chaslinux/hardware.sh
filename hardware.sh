@@ -42,7 +42,6 @@ sudo apt -y install iw # install iw because it isn't present if you don't activa
 
 # Variables
 CURRENTDIR=$(pwd)
-TBOEM="To Be Filled By O.E.M."
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- | tr -d "_")
 SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
@@ -62,8 +61,8 @@ OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
 GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
-PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16- | tr -d "_")
-PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16- | tr -d "_")
+PROD1=$(sudo dmidecode -t 2 | grep "Manufacturer" | cut -c 16- | tr -d "_")
+PROD2=$(sudo dmidecode -t 2 | grep "Product Name" | cut -c 16- | tr -d "_")
 PRODUCT="$PROD1 $PROD2"
 NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
@@ -85,17 +84,6 @@ if [ $PROD2=="VPCSB190S" ]; then
 	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
-fi
-
-# Check fields for To Be Filled by O.E.M.
-if [ $MMFG==$TBOEM ]; then
-    MMFG=$(sudo dmidecode -t baseboard | grep "Manufacturer:" | cut -c 16-)
-fi
-if [ $MMODEL==$TBOEM ]; then
-    MMODEL=$(sudo dmidecode -t baseboard | grep "Product Name:" | cut -c 16-)
-fi
-if [ $SERIALNO==$TBOEM ]; then
-    SERIALNO=$(cat /sys/class/net/*/address | head -n 1 | sed 's/://g')
 fi
 
 ###################################################
@@ -207,13 +195,13 @@ if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.'
 	} >> /home/$USER/Desktop/specs.tex
 fi
 {
-	sudo dmidecode -t 1 | grep "Manufacturer"
+	sudo dmidecode -t 2 | grep "Manufacturer"
 	echo "\quad"
-	sudo dmidecode -t 1 | grep "Product Name" | tr -d "_"
+	sudo dmidecode -t 2 | grep "Product Name" | tr -d "_"
 	printf '\\newline\n'
-	sudo dmidecode -t 1 | grep "Family" | tr -d "_"
+	sudo dmidecode -t 2 | grep "Family" | tr -d "_"
 	echo "\quad"
-	sudo dmidecode -t 1 | grep "Serial" | tr -d "_"
+	sudo dmidecode -t 2 | grep "Serial" | tr -d "_"
 	printf '\\newline\n'
 	echo "\includegraphics{serial.pdf}"
 	echo "\includegraphics{results.pdf}"
