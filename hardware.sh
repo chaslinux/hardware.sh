@@ -91,7 +91,7 @@ if [ $PROD2=="VPCSB190S" ]; then
 fi
 
 # MacBook Air 4,2 apparently has saturation issues as well
-if [[ "$SYSPRODNAME"== "MacBookAir4,2" ]]; then
+if [[ "$SYSPRODNAME"=="MacBookAir4,2" ]]; then
 	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
