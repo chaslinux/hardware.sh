@@ -12,6 +12,7 @@ PURPLE='\033[1;35m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 CYAN='\033[1;36m'
+REDWHITE='\033[1;37;41m'
 
 # update the system because the script might not work if old software is installed
 sudo apt update
@@ -489,8 +490,11 @@ done
 
 echo $BATPERCENT
 case $BATPERCENT in
+    "")
+        echo "This is either a desktop, or it has no battery!"
+        ;;
     100|9[0-9])
-        echo "Great Battery! Charge extra!"
+        echo "${LTGREEN}\e[5m Great Battery! Charge extra! \e[0m${NC}"
         ;;
     8[0-9])
         echo "Good Battery, normal price."
@@ -499,7 +503,7 @@ case $BATPERCENT in
         echo "Usable Battery, normal price."
         ;;
     *)
-        echo "This Battery sucks, and should be replaced!"
+        echo "${REDWHITE}\e[5m Ideally, this battery should be replaced! \e[0m${NC}"
         ;;
 esac
     
