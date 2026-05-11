@@ -74,6 +74,7 @@ BTVERSION=$(hciconfig -a | grep "LMP Version:" | cut -c 15- | cut -c -3)
 WIFIVERSION=$(bash -efu "$CURRENTDIR/wifi.sh" 2>/dev/null)
 BATPERCENT=$(upower -i $(upower -e | grep BAT) | grep capacity | cut -c 5- | tr -d "%" | cut -c 22-)
 BATPERCENT=${BATPERCENT%%.*}
+SYSPRODNAME=$(sudo dmidecode -s system-product-name)
 
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
 if [[ "$FAMILY"=="ThinkPad X240" ]]; then
@@ -90,7 +91,7 @@ if [ $PROD2=="VPCSB190S" ]; then
 fi
 
 # MacBook Air 4,2 apparently has saturation issues as well
-if [[ sudo dmidecode -s system-product-name == "MacBookAir4,2" ]]; then
+if [[ "$SYSPRODNAME"== "MacBookAir4,2" ]]; then
 	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
