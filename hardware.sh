@@ -480,3 +480,18 @@ for SDDRIVE in $SDDRIVE; do
 done
 
 echo $BATPERCENT
+case $BATPERCENT in
+    100|9[0-9])
+        echo "Great Battery! Charge extra!"
+        ;;
+    8[0-9])
+        echo "Good Battery, normal price."
+        ;;
+    7[0-9])
+        echo "Usable Battery, normal price."
+        ;;
+    *)
+        echo "This Battery sucks, and should be replaced!"
+        ;;
+esac
+    
