@@ -494,7 +494,7 @@ case $BATPERCENT in
         echo "This is either a desktop, or it has no battery!"
         ;;
     100|9[0-9])
-        echo "${LTGREEN}\e[5m Great Battery! Charge extra! \e[0m${NC}"
+        echo -e "${LTGREEN}\e[5m Great Battery! Charge extra! \e[0m${NC}"
         ;;
     8[0-9])
         echo "Good Battery, normal price."
@@ -503,7 +503,7 @@ case $BATPERCENT in
         echo "Usable Battery, normal price."
         ;;
     *)
-        echo "${REDWHITE}\e[5m Ideally, this battery should be replaced! \e[0m${NC}"
+        echo -e "${REDWHITE}\e[5m Ideally, this battery should be replaced! \e[0m${NC}"
         ;;
 esac
     
