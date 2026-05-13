@@ -47,8 +47,8 @@ CURRENTDIR=$(pwd)
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- | tr -d "_")
 SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
-MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
-MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15- | tr -d "_")
+MMFG=$(sudo dmidecode -t 1 | grep Manu | cut -c 16-)
+MMODEL=$(sudo dmidecode -t 1 | grep Product | cut -c 15- | tr -d "_")
 CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
 COREDETECT=$(sensors | grep "Core ")
 AMDTDIE=$(sensors | grep "Tdie:" | cut -c 15-)
@@ -63,8 +63,8 @@ OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
 GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
-PROD1=$(sudo dmidecode -t 2 | grep "Manufacturer" | cut -c 16- | tr -d "_")
-PROD2=$(sudo dmidecode -t 2 | grep "Product Name" | cut -c 16- | tr -d "_")
+PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16- | tr -d "_")
+PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16- | tr -d "_")
 PRODUCT="$PROD1 $PROD2"
 NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
@@ -207,13 +207,13 @@ if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.'
 	} >> /home/$USER/Desktop/specs.tex
 fi
 {
-	sudo dmidecode -t 2 | grep "Manufacturer"
+	sudo dmidecode -t 1 | grep "Manufacturer"
 	echo "\quad"
-	sudo dmidecode -t 2 | grep "Product Name" | tr -d "_"
+	sudo dmidecode -t 1 | grep "Product Name" | tr -d "_"
 	printf '\\newline\n'
-	sudo dmidecode -t 2 | grep "Family" | tr -d "_"
+	sudo dmidecode -t 1 | grep "Family" | tr -d "_"
 	echo "\quad"
-	sudo dmidecode -t 2 | grep "Serial" | tr -d "_"
+	sudo dmidecode -t 1 | grep "Serial" | tr -d "_"
 	printf '\\newline\n'
 	echo "\includegraphics{serial.pdf}"
 	echo "\includegraphics{results.pdf}"
