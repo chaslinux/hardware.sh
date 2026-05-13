@@ -12,6 +12,7 @@ PURPLE='\033[1;35m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 CYAN='\033[1;36m'
+REDWHITE='\033[1;37;41m'
 
 # update the system because the script might not work if old software is installed
 sudo apt update
@@ -36,6 +37,7 @@ sudo apt -y install pango1.0-tools sysbench glmark2 imagemagick
 sudo apt -y install img2pdf
 sudo apt -y install lm-sensors # install lm-sensors to detect temperatures
 sudo apt -y install powerstat
+sudo apt -y install upower # install for battery testing
 sudo apt -y install v4l-utils # install tools for working with webcams
 sudo apt -y install rfkill # for bluetooth detection
 sudo apt -y install iw # install iw because it isn't present if you don't activate wifi before installation.
@@ -45,8 +47,8 @@ CURRENTDIR=$(pwd)
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- | tr -d "_")
 SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
-MMFG=$(sudo dmidecode -t 2 | grep Manu | cut -c 16-)
-MMODEL=$(sudo dmidecode -t 2 | grep Product | cut -c 15- | tr -d "_")
+MMFG=$(sudo dmidecode -t 1 | grep Manu | cut -c 16-)
+MMODEL=$(sudo dmidecode -t 1 | grep Product | cut -c 15- | tr -d "_")
 CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
 COREDETECT=$(sensors | grep "Core ")
 AMDTDIE=$(sensors | grep "Tdie:" | cut -c 15-)
@@ -61,8 +63,8 @@ OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
 GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
-PROD1=$(sudo dmidecode -t 2 | grep "Manufacturer" | cut -c 16- | tr -d "_")
-PROD2=$(sudo dmidecode -t 2 | grep "Product Name" | cut -c 16- | tr -d "_")
+PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16- | tr -d "_")
+PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16- | tr -d "_")
 PRODUCT="$PROD1 $PROD2"
 NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
@@ -71,6 +73,9 @@ MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" |
 DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
 BTVERSION=$(hciconfig -a | grep "LMP Version:" | cut -c 15- | cut -c -3)
 WIFIVERSION=$(bash -efu "$CURRENTDIR/wifi.sh" 2>/dev/null)
+BATPERCENT=$(upower -i $(upower -e | grep BAT) | grep capacity | cut -c 5- | tr -d "%" | cut -c 22-)
+BATPERCENT=${BATPERCENT%%.*}
+SYSPRODNAME=$(sudo dmidecode -s system-product-name)
 
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
 if [[ "$FAMILY"=="ThinkPad X240" ]]; then
@@ -81,6 +86,13 @@ fi
 
 # Sony VAIO VPCSB190S has issues with saturation
 if [ $PROD2=="VPCSB190S" ]; then
+	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
+	sudo udevadm control --reload-rules
+	sudo udevadm trigger
+fi
+
+# MacBook Air 4,2 apparently has saturation issues as well
+if [[ "$SYSPRODNAME"=="MacBookAir4,2" ]]; then
 	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
@@ -195,13 +207,13 @@ if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.'
 	} >> /home/$USER/Desktop/specs.tex
 fi
 {
-	sudo dmidecode -t 2 | grep "Manufacturer"
+	sudo dmidecode -t 1 | grep "Manufacturer"
 	echo "\quad"
-	sudo dmidecode -t 2 | grep "Product Name" | tr -d "_"
+	sudo dmidecode -t 1 | grep "Product Name" | tr -d "_"
 	printf '\\newline\n'
-	sudo dmidecode -t 2 | grep "Family" | tr -d "_"
+	sudo dmidecode -t 1 | grep "Family" | tr -d "_"
 	echo "\quad"
-	sudo dmidecode -t 2 | grep "Serial" | tr -d "_"
+	sudo dmidecode -t 1 | grep "Serial" | tr -d "_"
 	printf '\\newline\n'
 	echo "\includegraphics{serial.pdf}"
 	echo "\includegraphics{results.pdf}"
@@ -475,3 +487,23 @@ for SDDRIVE in $SDDRIVE; do
 		echo "This is not actually a hard drive, nor an SSD, but a media drive."
 	fi
 done
+
+echo $BATPERCENT
+case $BATPERCENT in
+    "")
+        echo "This is either a desktop, or it has no battery!"
+        ;;
+    100|9[0-9])
+        echo -e "${LTGREEN}\e[5m Great Battery! Add $20 to the price of the laptop! \e[0m${NC}"
+        ;;
+    8[0-9])
+        echo "Good Battery, normal price."
+        ;;
+    7[0-9])
+        echo "Usable Battery, normal price."
+        ;;
+    *)
+        echo -e "${REDWHITE}\e[5m Ideally, this battery should be replaced, or subtract -$20 from the price of the laptop \e[0m${NC}"
+        ;;
+esac
+    
