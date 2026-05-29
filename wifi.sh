@@ -31,7 +31,7 @@ echo Scanning for WiFi capabilities... >&2
 ###     TECH      GEN 802.xx # notes # ++++++++++ Add + test 9/10/11 here?
 iwgrep  UHR        8 "11bn, or greater" # UNTESTED
 iwgrep  EHT        7  11be   # UNTESTED - "Extremely High Throughput" - WiFi 7
-iwgrep  "6.* MHz"  6e 11ax   # UNTESTED - anything better to grep than freqs?
+# iwgrep "6.* MHz" 6e 11ax   # UNTESTED - but also prone to false-positives
 iwgrep  HE         6  11ax   # UNTESTED "High Efficiency" - WiFi 6
 iwgrep  VHT        5  11ac   #   TESTED "Very High Throughput" implies WiFi 5
 iwgrep  HT         4  11n    #   TESTED "High Throughput" indicating WiFi 4
