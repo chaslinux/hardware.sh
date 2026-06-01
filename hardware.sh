@@ -42,6 +42,7 @@ sudo apt -y install v4l-utils # install tools for working with webcams
 sudo apt -y install rfkill # for bluetooth detection
 sudo apt -y install iw # install iw because it isn't present if you don't activate wifi before installation.
 
+
 # Variables
 CURRENTDIR=$(pwd)
 FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- | tr -d "_")
@@ -62,6 +63,7 @@ HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
 OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
 OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
 RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
+TOTALRAM=$(free -g | awk '/^Mem:/ {print $2}') # replace RAMSIZE variable in a future version of the script
 GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
 PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16- | tr -d "_")
 PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16- | tr -d "_")
@@ -96,6 +98,12 @@ if [[ "$SYSPRODNAME"=="MacBookAir4,2" ]]; then
 	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
+fi
+
+if [ "$TOTALRAM" -le 8 ]; then
+    sudo apt update && sudo apt -y install systemd-zram-generator
+    sudo cp $CURRENTDIR/zram-generator.conf /etc/systemd
+    sudo cp $CURRENTDIR/99-swappiness.conf /etc/sysctl.d
 fi
 
 ###################################################
@@ -494,7 +502,7 @@ case $BATPERCENT in
         echo "This is either a desktop, or it has no battery!"
         ;;
     100|9[0-9])
-        echo -e "${LTGREEN}\e[5m Great Battery! Add $20 to the price of the laptop! \e[0m${NC}"
+        echo -e "${LTGREEN}\e[5m Great Battery! Add \$20 to the price of the laptop! \e[0m${NC}"
         ;;
     8[0-9])
         echo "Good Battery, normal price."
@@ -503,7 +511,7 @@ case $BATPERCENT in
         echo "Usable Battery, normal price."
         ;;
     *)
-        echo -e "${REDWHITE}\e[5m Ideally, this battery should be replaced, or subtract -$20 from the price of the laptop \e[0m${NC}"
+        echo -e "${REDWHITE}\e[5m Ideally, this battery should be replaced, or subtract -\$20 from the price of the laptop \e[0m${NC}"
         ;;
 esac
     
