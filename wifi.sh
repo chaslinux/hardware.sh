@@ -35,7 +35,7 @@ iwgrep  EHT        7  11be   # UNTESTED - "Extremely High Throughput" - WiFi 7
 iwgrep  HE         6  11ax   # UNTESTED "High Efficiency" - WiFi 6
 iwgrep  VHT        5  11ac   #   TESTED "Very High Throughput" implies WiFi 5
 iwgrep  HT         4  11n    #   TESTED "High Throughput" indicating WiFi 4
-iwgrep "54.0 Mbps" 3  11g    # UNTESTED - anything better to grep than speed?
+iwgrep "54.0 Mbps" 3  11g    #   TESTED - but anything better to grep?
 iwgrep  "5.* MHz"  2g 11a    # UNTESTED - anything better to grep than freqs?
 iwgrep "11.0 Mbps" 2  11b    # UNTESTED - anything better to grep than speed?
 iwgrep  "1.0 Mbps" 1  11     # UNTESTED - anything better to grep than speed?
