@@ -41,6 +41,7 @@ sudo apt -y install upower # install for battery testing
 sudo apt -y install v4l-utils # install tools for working with webcams
 sudo apt -y install rfkill # for bluetooth detection
 sudo apt -y install iw # install iw because it isn't present if you don't activate wifi before installation.
+sudo apt -y install fwupd # install a firmware updater
 
 
 # Variables
@@ -78,6 +79,7 @@ WIFIVERSION=$(bash -efu "$CURRENTDIR/wifi.sh" 2>/dev/null)
 BATPERCENT=$(upower -i $(upower -e | grep BAT) | grep capacity | cut -c 5- | tr -d "%" | cut -c 22-)
 BATPERCENT=${BATPERCENT%%.*}
 SYSPRODNAME=$(sudo dmidecode -s system-product-name)
+BIOSYEAR=$(sudo dmidecode -t bios | grep "Release Date" | grep -oE '[0-9]{4}') # grab the bios year for fwupd
 
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
 if [[ "$FAMILY"=="ThinkPad X240" ]]; then
@@ -515,3 +517,12 @@ case $BATPERCENT in
         ;;
 esac
     
+# If the BIOS is 2015 or later try to refresh and update the BIOS
+if [ "$BIOSYEAR" -lt 2015 ]; then # older than 2015
+    echo "The BIOS is older than 2015 (Year: $BIOSYEAR)"
+else
+    echo "The BIOS is from 2015 or newer (Year: $BIOSYEAR) so trying to do any firmware updates"
+    fwupdmgr refresh
+    fwupdmgr get-updates
+    fwupdmgr update
+fi
