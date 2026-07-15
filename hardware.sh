@@ -21,36 +21,41 @@ sudo apt upgrade -y
 
 # Install software for LaTeX, PDF creation, and benchmarking
 echo -e "${LTGREEN}*** ${WHITE}Installing Software needed for LaTeX and PDF creation !${LTGREEN}*** ${NC}"
-sudo apt -y install lshw # list hardware
-sudo apt -y install mesa-utils # for glxinfo
-sudo apt -y install smbclient # so we can copy the serialno.pdf to our TrueNAS server
-sudo apt -y install smartmontools # for hard drives
-sudo apt -y install libcdio-utils # for cd-drives
-sudo apt -y install acpi # for power information on laptops
-sudo apt -y install texlive-latex-base # to make pdfs
-sudo apt -y install texlive-latex-extra # needed for changes on 05/28/2025
-sudo apt -y install barcode # to create barcodes
-sudo apt -y install texlive-extra-utils # So we can create convert eps barcode to pdf then crop
-sudo apt -y install texlive-pictures # more barcode handling
-sudo apt -y install nvme-cli # add tools to query nvme status
-sudo apt -y install pango1.0-tools sysbench glmark2 imagemagick
-sudo apt -y install img2pdf
-sudo apt -y install lm-sensors # install lm-sensors to detect temperatures
-sudo apt -y install powerstat
-sudo apt -y install upower # install for battery testing
-sudo apt -y install v4l-utils # install tools for working with webcams
-sudo apt -y install rfkill # for bluetooth detection
-sudo apt -y install iw # install iw because it isn't present if you don't activate wifi before installation.
-sudo apt -y install fwupd # install a firmware updater
+sudo apt -y install \
+    lshw \
+    mesa-utils \
+    smbclient \
+    smartmontools \
+    libcdio-utils \
+    acpi \
+    texlive-latex-base \
+    texlive-latex-extra \
+    barcode \
+    texlive-extra-utils \
+    texlive-pictures \
+    nvme-cli \
+    pango1.0-tools sysbench glmark2 imagemagick \
+    img2pdf \
+    lm-sensors \
+    powerstat \
+    upower \
+    v4l-utils \
+    rfkill \
+    iw \
+    fwupd
 
 
 # Variables
 CURRENTDIR=$(pwd)
-FAMILY=$(sudo dmidecode -t 1 | grep "Family" | cut -c 10- | tr -d "_")
+DMI=$(sudo dmidecode -t 1) # this has to stay at the top to be used by other variables.
+LSB=$(lsb_release -a)
+# LHW=$(sudo lshw)
+DESKTOP="$HOME/Desktop"
+FAMILY=$(echo "$DMI" | grep "Family" | cut -c 10- | tr -d "_")
 SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
-MMFG=$(sudo dmidecode -t 1 | grep Manu | cut -c 16-)
-MMODEL=$(sudo dmidecode -t 1 | grep Product | cut -c 15- | tr -d "_")
+MMFG=$(echo "$DMI"  | grep Manu | cut -c 16-)
+MMODEL=$(echo "$DMI"  | grep Product | cut -c 15- | tr -d "_")
 CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
 COREDETECT=$(sensors | grep "Core ")
 AMDTDIE=$(sensors | grep "Tdie:" | cut -c 15-)
@@ -58,22 +63,22 @@ VRAM=$(glxinfo | grep "Video memory")
 VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
-NVME=$(sudo nvme list | grep nvme)
+NVME=$(sudo nvme list | grep nvme || true)
 NVMENAME=$(sudo nvme list | grep nvme | cut -c -12)
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
-OSFAMILY=$(lsb_release -a | grep "Description" | cut -c 14-)
-OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
-RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
+OSFAMILY=$(echo "$LSB" | grep "Description" | cut -c 14-)
+# OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
+# RAMSIZE=$(sudo lshw -short -class memory | grep "System" | sed 's/^[^m]*memory//' | awk '{$1=$1};1')
 TOTALRAM=$(free -g | awk '/^Mem:/ {print $2}') # replace RAMSIZE variable in a future version of the script
-GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
-PROD1=$(sudo dmidecode -t 1 | grep "Manufacturer" | cut -c 16- | tr -d "_")
-PROD2=$(sudo dmidecode -t 1 | grep "Product Name" | cut -c 16- | tr -d "_")
-PRODUCT="$PROD1 $PROD2"
+# GRAPHICS=$(sudo lshw -C Display | grep product | sed 's/&//g' | cut -c 17-)
+PROD1=$(echo "$DMI"  | grep "Manufacturer" | cut -c 16- | tr -d "_")
+PROD2=$(echo "$DMI"  | grep "Product Name" | cut -c 16- | tr -d "_")
+# PRODUCT="$PROD1 $PROD2"
 NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
 SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
 MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
-DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
+# DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
 BTVERSION=$(hciconfig -a | grep "LMP Version:" | cut -c 15- | cut -c -3)
 WIFIVERSION=$(bash -efu "$CURRENTDIR/wifi.sh" 2>/dev/null)
 BATPERCENT=$(upower -i $(upower -e | grep BAT) | grep capacity | cut -c 5- | tr -d "%" | cut -c 22-)
@@ -81,95 +86,100 @@ BATPERCENT=${BATPERCENT%%.*}
 SYSPRODNAME=$(sudo dmidecode -s system-product-name)
 BIOSYEAR=$(sudo dmidecode -t bios | grep "Release Date" | grep -oE '[0-9]{4}') # grab the bios year for fwupd
 
+
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
-if [[ "$FAMILY"=="ThinkPad X240" ]]; then
-	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
+if [[ "$FAMILY" == "ThinkPad X240" ]]; then
+	sudo cp "$CURRENTDIR/99-webcam-saturation.rules" /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
 fi
 
 # Sony VAIO VPCSB190S has issues with saturation
-if [ $PROD2=="VPCSB190S" ]; then
-	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
+if [[ "$PROD2" == "VPCSB190S" ]]; then
+	sudo cp "$CURRENTDIR/99-webcam-saturation.rules" /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
 fi
 
 # MacBook Air 4,2 apparently has saturation issues as well
-if [[ "$SYSPRODNAME"=="MacBookAir4,2" ]]; then
-	sudo cp $CURRENTDIR/99-webcam-saturation.rules /etc/udev/rules.d/.
+if [[ "$SYSPRODNAME" == "MacBookAir4,2" ]]; then
+	sudo cp "$CURRENTDIR/99-webcam-saturation.rules" /etc/udev/rules.d/.
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
 fi
 
-if [ "$TOTALRAM" -le 8 ]; then
+if [[ "$TOTALRAM" -le 8 ]]; then
     sudo apt update && sudo apt -y install systemd-zram-generator
-    sudo cp $CURRENTDIR/zram-generator.conf /etc/systemd
-    sudo cp $CURRENTDIR/99-swappiness.conf /etc/sysctl.d
+    sudo cp "$CURRENTDIR/zram-generator.conf" /etc/systemd
+    sudo cp "$CURRENTDIR/99-swappiness.conf" /etc/sysctl.d
 fi
 
 ###################################################
 ### This area is for the benchmarks development ###
 ###################################################
 
-if [ -f /home/$USER/Desktop/sysbench.txt ]; then
+if [ -f "$DESKTOP/sysbench.txt" ]; then
 	echo "Removing sysbench.txt..."
-	rm /home/$USER/Desktop/sysbench.txt
+	rm "$DESKTOP/sysbench.txt"
 else
 	echo "No sysbench.txt file, creating one."
 fi
 
-if [ -f /home/$USER/Desktop/glmark2.txt ]; then
+if [ -f "$DESKTOP/glmark2.txt" ]; then
 	echo "Removing glmark2.txt..."
-	rm /home/$USER/Desktop/glmark2.txt
+	rm "$DESKTOP/glmark2.txt"
 else
 	echo "No glmark2.txt file, creating one."
 fi
 
-if [ -f /home/$USER/Desktop/sysbench.png ]; then
+if [ -f "$DESKTOP/sysbench.png" ]; then
 	echo "Removing sysbench.png"
-	rm /home/$USER/Desktop/sysbench.png
+	rm "$DESKTOP/sysbench.png"
 fi
-if [ -f /home/$USER/Desktop/glmark2.png ]; then
+if [ -f "$DESKTOP/glmark2.png" ]; then
 	echo "Removing glmark2.png"
-	rm /home/$USER/Desktop/glmark2.png
+	rm "$DESKTOP/glmark2.png"
 fi
 
 # Create a sysbench text file with the benchmarks
-echo -n "CPU (single-core): $SINGLEBENCH CPU (Multi-core): $MULTIBENCH " > /home/$USER/Desktop/sysbench.txt
+echo -n "CPU (single-core): $SINGLEBENCH CPU (Multi-core): $MULTIBENCH " > "$DESKTOP/sysbench.txt"
 # echo "Now running sysbench... be patient for a few seconds..."
 # sysbench cpu --cpu-max-prime=10000 run | grep "events per second" | cut -c 25- >> /home/$USER/Desktop/sysbench.txt
 
 # create the glmark2 text file
-echo -n "GLMark2: " > /home/$USER/Desktop/glmark2.txt
+echo -n "GLMark2: " > "$DESKTOP/glmark2.txt"
 echo -e "${LTGREEN}***${PURPLE}\e[5m Now running glmark2... be patient for a few seconds... \e[0m${LTGREEN}***"
-glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> /home/$USER/Desktop/glmark2.txt
+glmark2 -b :duration=2.0 -b shading -b build -b :duration-5.0 -b texture | grep "glmark2 Score:" | cut -c 50- >> "$DESKTOP/glmark2.txt"
 
 # Now create the images to be incorporated into the PDF
 # pango-view --font="Ubuntu Sans Ultra-Bold" -qo /home/$USER/Desktop/title.png $CURRENTDIR/bench-title.txt
-pango-view --font="Roboto Condensed" -qo /home/$USER/Desktop/title.png $CURRENTDIR/bench-title.txt
-pango-view --font="Roboto Condensed" -qo /home/$USER/Desktop/sysbench.png /home/$USER/Desktop/sysbench.txt
-pango-view --font="Roboto Condensed" -qo /home/$USER/Desktop/glmark2.png /home/$USER/Desktop/glmark2.txt
+pango-view --font="Roboto Condensed" -qo "$DESKTOP/title.png" "$CURRENTDIR/bench-title.txt"
+pango-view --font="Roboto Condensed" -qo "$DESKTOP/sysbench.png" /home/$USER/Desktop/sysbench.txt
+pango-view --font="Roboto Condensed" -qo "$DESKTOP/glmark2.png" /home/$USER/Desktop/glmark2.txt
 
 # Join the PNG images together
-convert /home/$USER/Desktop/sysbench.png +append /home/$USER/Desktop/sysbenchmark.png
-convert /home/$USER/Desktop/glmark2.png +append /home/$USER/Desktop/glmark2mark.png
-convert /home/$USER/Desktop/sysbenchmark.png /home/$USER/Desktop/glmark2mark.png -append /home/$USER/Desktop/Benchmarks.png
-convert -bordercolor black -border 2 /home/$USER/Desktop/Benchmarks.png /home/$USER/Desktop/results.png
+convert "$DESKTOP/sysbench.png" +append "$DESKTOP/sysbenchmark.png"
+convert "$DESKTOP/glmark2.png" +append "$DESKTOP/glmark2mark.png"
+convert "$DESKTOP/sysbenchmark.png" \
+    "$DESKTOP/glmark2mark.png" \
+    -append "$DESKTOP/Benchmarks.png"
+convert -bordercolor black -border 2 "$DESKTOP/Benchmarks.png" "$DESKTOP/results.png"
 
 # Remove the text files
-rm /home/$USER/Desktop/glmark2.txt
-rm /home/$USER/Desktop/sysbench.txt
+rm "$DESKTOP/glmark2.txt"
+rm "$DESKTOP/sysbench.txt"
 
 # Remove the temporary image files
-rm /home/$USER/Desktop/sysbenchmark.png
-rm /home/$USER/Desktop/glmark2mark.png
+rm "$DESKTOP/sysbenchmark.png"
+rm "$DESKTOP/glmark2mark.png"
 
 # Make one PNG file
-convert /home/$USER/Desktop/sysbench.png /home/$USER/Desktop/glmark2.png +append /home/$USER/Desktop/benchmarks.png
+convert "$DESKTOP/sysbench.png" \
+    "$DESKTOP/glmark2.png" \
+    +append "$DESKTOP/benchmarks.png"
 
 # Convert results.png benchmark to a PDF file to imported into specs.tex
-img2pdf /home/$USER/Desktop/results.png -o /home/$USER/Desktop/results.pdf
+img2pdf "$DESKTOP/results.png" -o "$DESKTOP/results.pdf"
 
 echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGREEN}*** ${NC}"
 # create a latex document at /home/$USER/Desktop/specs.tex
@@ -180,11 +190,11 @@ echo -e "${LTGREEN}*** ${WHITE}Starting detection and document creation ! ${LTGR
 	printf '\\usepackage{graphicx}\n'
 	printf '\\title{System Specifications}\n'
 	printf '\\begin{document}\n'
-} > /home/$USER/Desktop/specs.tex # NOT >> for the first write
+} > "$DESKTOP/specs.tex" # NOT >> for the first write
 
 # First output the title
-printf '\\maketitle\n' >> /home/$USER/Desktop/specs.tex
-printf '\\vspace{-5em}' >> /home/$USER/Desktop/specs.tex
+printf '\\maketitle\n' >> "$DESKTOP/specs.tex"
+printf '\\vspace{-5em}' >> "$DESKTOP/specs.tex"
 
 # Now let's create the barcode
 # if no OEM barcode, use mac address: cat /sys/class/net/*/address | head -n 1 >> /home/$USER/Desktop/barcode.txt
@@ -194,27 +204,27 @@ echo -e "${LTGREEN}*** ${WHITE}Creating the barcode ! ${LTGREEN}*** ${NC}"
 if [[ $SLEN -lt 4 || $SERIALNO == "System Serial Number" || $SERIALNO == "To be filled by O.E.M." || $SERIALNO == "Default string" || $SERIALNO =~ [^A-Za-z0-9] ]]; then
 	# set the serial number to the mac address if any of the above apply
 	echo "$FAMILY"
-	cat /sys/class/net/*/address | head -n 1 | sed 's/://g' | tr -d "_" >> /home/$USER/Desktop/barcode.txt
+	cat /sys/class/net/*/address | head -n 1 | sed 's/://g' | tr -d "_" >> "$DESKTOP/barcode.txt"
 	SERIALNO=$(cat /sys/class/net/*/address | head -n 1 | sed 's/://g')
 else
 	echo "$FAMILY"
-	sudo dmidecode -t 1 | grep "Serial" | cut -c 17- | tr -d "_" >> /home/$USER/Desktop/barcode.txt
+	sudo dmidecode -t 1 | grep "Serial" | cut -c 17- | tr -d "_" >> "$DESKTOP/barcode.txt"
 	SERIALNO=$(sudo dmidecode -t 1 | grep "Serial" | cut -c 17-)
 fi
 
-barcode -e "128" -g "144x72" -E -i /home/$USER/Desktop/barcode.txt  -o /home/$USER/Desktop/barcode.eps
-cd /home/$USER/Desktop || exit
+barcode -e "128" -g "144x72" -E -i "$DESKTOP/barcode.txt"  -o "$DESKTOP/barcode.eps"
+cd "$DESKTOP" || exit
 epspdf barcode.eps barcode.pdf
 pdfcrop --margins '0 10 10 0' barcode.pdf serial.pdf
 
 # detect Model/Mfg information
 echo -e "${LTGREEN}*** ${WHITE}Detecting system information ! ${LTGREEN}*** ${NC}"
-echo "\section{Model}" >> /home/$USER/Desktop/specs.tex
+echo "\section{Model}" >> "$DESKTOP/specs.tex"
 if [[ $FAMILY == 'To be filled by O.E.M.' || $FAMILY == 'To Be Filled By O.E.M.' ]]; then
 	{
 		echo "Motherboard: " "$MMFG" "Model: " "$MMODEL" | tr -d "_"
 		printf '\\newline\n'
-	} >> /home/$USER/Desktop/specs.tex
+	} >> "$DESKTOP/specs.tex"
 fi
 {
 	sudo dmidecode -t 1 | grep "Manufacturer"
@@ -228,7 +238,7 @@ fi
 	echo "\includegraphics{serial.pdf}"
 	echo "\includegraphics{results.pdf}"
 	printf '\\newline\n'
-} >> /home/$USER/Desktop/specs.tex
+} >> "$DESKTOP/specs.tex"
 
 # Now remove all the files that got created to generate the pdf
 rm barcode.txt barcode.eps barcode.pdf
@@ -245,7 +255,7 @@ rm barcode.txt barcode.eps barcode.pdf
 	printf '\\quad\n'
 	sudo dmidecode -t 4 | grep "Thread Count"
 	printf '\\newline\n'
-} >> /home/$USER/Desktop/specs.tex
+} >> "$DESKTOP/specs.tex"
 
 #detect RAM information
 {
@@ -260,31 +270,31 @@ rm barcode.txt barcode.eps barcode.pdf
 	sudo dmidecode -t 17 | grep -m 1 "Type: DDR"
 	printf '\\newline\n'
 	sudo dmidecode -t 17 | grep "Configured Memory Speed"
-} >> /home/$USER/Desktop/specs.tex
+} >> "$DESKTOP/specs.tex"
 
 #detect GRAPHICS information
 {
 	printf '\\section{GRAPHICS}\n'
 	sudo lshw -C Display | grep product | sed 's/&//g'
 	printf '\\newline\n'  # this and the following line added 20/01/2023
-} >> /home/$USER/Desktop/specs.tex
+} >> "$DESKTOP/specs.tex"
 
 if [[ $VLEN -gt 2 ]]; then
-	echo "$VRAM" >> /home/$USER/Desktop/specs.tex
+	echo "$VRAM" >> "$DESKTOP/specs.tex"
 else
-	glxinfo | grep "Total available memory" | cut -c 5- >> /home/$USER/Desktop/specs.tex
+	glxinfo | grep "Total available memory" | cut -c 5- >> "$DESKTOP/specs.tex"
 fi
 
 {
 	printf '\\newline\n'
 	glxinfo | grep "OpenGL version"
-} >> /home/$USER/Desktop/specs.tex
+} >> "$DESKTOP/specs.tex"
 
 #detect hard drive
-printf '\\section{HardDrive}\n' >> /home/$USER/Desktop/specs.tex
+printf '\\section{HardDrive}\n' >> "$DESKTOP/specs.tex"
 # check for an eMMC drive
-if [ -n "$EMMC" ]; then
-	sudo fdisk -l | grep $EMMC | head -1 | tr -d "_" >> /home/$USER/Desktop/specs.tex
+if [[ -n "$EMMC" ]]; then
+	sudo fdisk -l | grep "$EMMC" | head -1 | tr -d "_" >> "$DESKTOP/specs.tex"
 else
 	echo "No EMMC drive"
 fi
@@ -293,7 +303,7 @@ if lshw -short | grep nvme; then
 	{
 	lshw -short | grep -m1 nvme | cut -c 17- | tr -d "_"
 	printf '\\newline\n'
-	} >> /home/$USER/Desktop/specs.tex
+	} >> "$DESKTOP/specs.tex"
 fi
 
 for SDDRIVE in $SDDRIVE; do
@@ -302,11 +312,11 @@ for SDDRIVE in $SDDRIVE; do
 #		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model Family" >> /home/$USER/Desktop/specs.tex
 #		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
 
-		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | tr -d "_" >> /home/$USER/Desktop/specs.tex
-		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Device Model" | tr -d "_" >> "$DESKTOP/specs.tex"
+		printf '\\newline\n' >> "$DESKTOP/specs.tex"
 
-		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> /home/$USER/Desktop/specs.tex
-		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+		sudo smartctl -d ata -a -i "$SDDRIVE" | grep "User Capacity"  >> "$DESKTOP/specs.tex"
+		printf '\\newline\n' >> "$DESKTOP/specs.tex"
 	else
 		echo "This is not actually a hard drive, nor an SSD, but a media drive."
 	fi
@@ -322,7 +332,7 @@ if lshw -short | grep cdrom; then
 		cd-drive | grep Model | tr -d "_"
 		echo "\quad"
 		cd-drive | grep Revision | tr -d "_"
-	} >> /home/$USER/Desktop/specs.tex
+	} >> "$DESKTOP/specs.tex"
 fi
 
 # Detect network card information
@@ -330,63 +340,63 @@ fi
 	echo "\\section{Network}"
 #	sudo lshw -class network | grep product
 	echo "$NETWORK" | tr -d "_"
-	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
-} >> /home/$USER/Desktop/specs.tex
+	printf '\\newline\n' >> "$DESKTOP/specs.tex"
+} >> "$DESKTOP/specs.tex"
 
 # Wifi and Bluetooth logos
 # consider more "llll" left-justified columns (or c or r)
-echo "\begin{tabular}{@{}lll}" >> /home/$USER/Desktop/specs.tex
+echo "\begin{tabular}{@{}lll}" >> "$DESKTOP/specs.tex"
 LOGOS="" # to go on line(s) below the details:
 if [[ "$BTVERSION" ]]; then
-	echo "Bluetooth $BTVERSION &" >> /home/$USER/Desktop/specs.tex
-	cp $CURRENTDIR/btlogo.png /home/$USER/Desktop/btlogo.png
+	echo "Bluetooth $BTVERSION &" >> "$DESKTOP/specs.tex"
+	cp "$CURRENTDIR/btlogo.png" "$DESKTOP/btlogo.png"
 	LOGOS="\\raisebox{-0.3ex}{\includegraphics{btlogo.png}} & "
 else
 	echo "No Bluetooth"
 fi
 if [[ "$WIFIVERSION" ]]; then
 	# consider adding the "&" if more columns
-	echo "$WIFIVERSION" >> /home/$USER/Desktop/specs.tex
-	cp $CURRENTDIR/wifilogo.png /home/$USER/Desktop/wifilogo.png
+	echo "$WIFIVERSION" >> "$DESKTOP/specs.tex"
+	cp "$CURRENTDIR/wifilogo.png" "$DESKTOP/wifilogo.png"
 	LOGOS="$LOGOS\\raisebox{-0.3ex}{\includegraphics{wifilogo.png}}"
 else
 	echo "No Wifi"
 fi
-echo '\\' >> /home/$USER/Desktop/specs.tex # single-quoted for actual double \
-echo "$LOGOS" >> /home/$USER/Desktop/specs.tex
-echo "\end{tabular}" >> /home/$USER/Desktop/specs.tex
+echo '\\' >> "$DESKTOP/specs.tex" # single-quoted for actual double \
+echo "$LOGOS" >> "$DESKTOP/specs.tex"
+echo "\end{tabular}" >> "$DESKTOP/specs.tex"
 
 #detect sound card information
 {
 	echo "\\section{Sound}"
 	sudo lshw -class sound | grep -m 1 product | tr -d "_"
-} >> /home/$USER/Desktop/specs.tex
+} >> "$DESKTOP/specs.tex"
 
 echo -e "${LTGREEN}*** ${WHITE}Detecting Laptop-specific hardware ! ${LTGREEN}*** ${NC}"
 if [ -d "/proc/acpi/button/lid" ]; then
 	# install necessary extra software
-	echo "\\section{Laptop Specific}" >> /home/$USER/Desktop/specs.tex
+	echo "\\section{Laptop Specific}" >> "$DESKTOP/specs.tex"
 	if acpi -V | grep "design capacity"; then
-		acpi -V | grep "design capacity" | tr -d "_" >> /home/$USER/Desktop/specs.tex
-		printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+		acpi -V | grep "design capacity" | tr -d "_" >> "$DESKTOP/specs.tex"
+		printf '\\newline\n' >> "$DESKTOP/specs.tex"
 	fi
 	# display the resolution
-	xrandr | grep -m1 connected | tr -d "_" >> /home/$USER/Desktop/specs.tex
-	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+	xrandr | grep -m1 connected | tr -d "_" >> "$DESKTOP/specs.tex"
+	printf '\\newline\n' >> "$DESKTOP/specs.tex"
 
 	# Take an average watts measurement on idle
 	echo -e "${LTBLUE}*** ${WHITE} Measuring Power Draw on IDLE for 60 seconds! ${LTBLUE}*** ${NC}"
-	printf "IDLE " >> /home/$USER/Desktop/specs.tex
-	sudo powerstat -cDHRf 2 | grep "Watts on average" >> /home/$USER/Desktop/specs.tex
-	printf '\\newline\n' >> /home/$USER/Desktop/specs.tex
+	printf "IDLE " >> "$DESKTOP/specs.tex"
+	sudo powerstat -cDHRf 2 | grep "Watts on average" >> "$DESKTOP/specs.tex"
+	printf '\\newline\n' >> "$DESKTOP/specs.tex"
 
 	# fix mouse cannot right or left click when laptop lid is closed
 	sudo sed -i 's/IgnoreLid=false/IgnoreLid=true/g' /etc/UPower/UPower.conf
 fi
 
 # Added OS because we're building too many machines without specifying which version of Xubuntu is installed.
-echo "\\section{Operating System}" >> /home/$USER/Desktop/specs.tex
-echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/$USER/Desktop/specs.tex
+echo "\\section{Operating System}" >> "$DESKTOP/specs.tex"
+echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> "$DESKTOP/specs.tex"
 
 ##########################
 ### Now create the PDF ###
@@ -394,58 +404,54 @@ echo $OSFAMILY $XDG_CURRENT_DESKTOP | tr -d "_" >> /home/$USER/Desktop/specs.tex
 
 # close the document
 echo -e "${LTGREEN}*** ${WHITE}Creating final document ! ${LTGREEN}*** ${NC}"
-printf '\\end{document}\n' >> /home/$USER/Desktop/specs.tex
-cd /home/$USER/Desktop || exit
+printf '\\end{document}\n' >> "$DESKTOP/specs.tex"
+cd "$DESKTOP" || exit
 
 
 # the line below strips out any underscores _ from specs.tex
 sed -i s/_//g specs.tex
 pdflatex specs.tex  > /dev/null
 
-cp specs.pdf $SERIALNO.pdf
+cp specs.pdf "$SERIALNO.pdf"
 if ping -c 1 -W 1 truenas ; then
 	smbclient //truenas/share -U "linuxuser" -c "put $SERIALNO.pdf $SERIALNO.pdf"
 else
 	echo "Done, this is not at The Working Centre, so exiting here."
 fi
 
-cd /home/$USER/Desktop || exit
+cd "$DESKTOP" || exit
 rm specs.log specs.aux serial.pdf specs.tex # sysbench.pdf glmark2.pdf > /dev/null
 # Remove the images that we no longer need because they are one PDF -- results.pdf
-rm /home/$USER/Desktop/sysbench.png > /dev/null
-rm /home/$USER/Desktop/glmark2.png > /dev/null
-rm /home/$USER/Desktop/results.png > /dev/null
-rm /home/$USER/Desktop/Benchmarks.png > /dev/null
-rm /home/$USER/Desktop/benchmarks.png > /dev/null
-# rm /home/$USER/Desktop/mresults.pdf > /dev/null
-# rm /home/$USER/Desktop/small_display.tex > /dev/null
-# rm /home/$USER/Desktop/small_display.log > /dev/null
-# rm /home/$USER/Desktop/small_display.aux > /dev/null
-rm /home/$USER/Desktop/title.png > /dev/null
-rm /home/$USER/Desktop/wifilogo.png > /dev/null
-rm /home/$USER/Desktop/btlogo.png > /dev/null
+rm "$DESKTOP/sysbench.png" \
+    "$DESKTOP/glmark2.png" \
+    "$DESKTOP/results.png" \
+    "$DESKTOP/Benchmarks.png" \
+    "$DESKTOP/benchmarks.png" \
+    "$DESKTOP/title.png" \
+    "$DESKTOP/wifilogo.png" \
+    "$DESKTOP/btlogo.png" > /dev/null
 
 # Now remove the specs.pdf because we've created SERIALNO.PDF
 rm specs.pdf  > /dev/null
 rm results.pdf > /dev/null
 
-if [ -f /home/$USER/Desktop/small_display.thm ]; then
-	rm /home/$USER/Desktop/small_display.thm
+if [ -f "$DESKTOP/small_display.thm" ]; then
+	rm "$DESKTOP/small_display.thm"
 fi
 
 # set up the sensors
 echo -e "${RED}*** ${WHITE}\e[5m Detecting sensors - This may take 45 seconds \e[0m ${RED}*** ${NC}"
 sudo sensors-detect --auto > /dev/null
 if [ -n "$COREDETECT" ]; then
-	echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
-	sensors | grep "Core " >> /home/$USER/Desktop/sensors.txt
+	echo "*** CPU Core Temperatures ***" > "$DESKTOP/sensors.txt"
+	sensors | grep "Core " >> "$DESKTOP/sensors.txt"
 else
 	echo "Cores may be referred to as something else, so for now not showing temps"
 fi
 
 if [ -n "$AMDTDIE" ]; then
-	echo "*** CPU Core Temperatures ***" > /home/$USER/Desktop/sensors.txt
-	echo "AMD CPU Temperature average: $AMDTDIE " >> /home/$USER/Desktop/sensors.txt
+	echo "*** CPU Core Temperatures ***" > "$DESKTOP/sensors.txt"
+	echo "AMD CPU Temperature average: $AMDTDIE " >> "$DESKTOP/sensors.txt"
 else
 	echo "Not a recognized AMD CPU."
 fi
@@ -454,8 +460,8 @@ fi
 NVIDIASMI=/usr/bin/nvidia-smi
 if [ -f "$NVIDIASMI" ]; then
 	NVIDIAGPUTEMP=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader)
-	echo "*** NVidia GPU Temperature ***" >> /home/$USER/Desktop/sensors.txt
-	echo "NVidia GPU: $NVIDIAGPUTEMP" >> /home/$USER/Desktop/sensors.txt
+	echo "*** NVidia GPU Temperature ***" >> "$DESKTOP/sensors.txt"
+	echo "NVidia GPU: $NVIDIAGPUTEMP" >> "$DESKTOP/sensors.txt"
 fi
 sensors | grep "Tdie:" | cut -c 15-
 # testing nvme status - write to sensors.txt
@@ -464,10 +470,10 @@ if [ -n "$NVME" ]; then
 	NVMEDATAREAD=$(sudo nvme smart-log $NVMENAME | grep "Data Units Read")
 	NVMEDATAWRITTEN=$(sudo nvme smart-log $NVMENAME | grep "Data Units Written")
 	echo "Writing NVME read/write to sensors.txt data file"
-	echo -e "\n" >> /home/$USER/Desktop/sensors.txt
-	echo "*** NVMe Read/Write Information ***" >> /home/$USER/Desktop/sensors.txt
-	echo $NVMEDATAREAD >> /home/$USER/Desktop/sensors.txt
-	echo $NVMEDATAWRITTEN >> /home/$USER/Desktop/sensors.txt
+	echo -e "\n" >> "$DESKTOP/sensors.txt"
+	echo "*** NVMe Read/Write Information ***" >> "$DESKTOP/sensors.txt"
+	echo $NVMEDATAREAD >> "$DESKTOP/sensors.txt"
+	echo $NVMEDATAWRITTEN >> "$DESKTOP/sensors.txt"
 else
 	echo "This computer does not have an NVMe drive"
 fi
@@ -488,8 +494,8 @@ for SDDRIVE in $SDDRIVE; do
 				echo "Non-Samsung SSD"
 			fi
 			echo "*** Writing SSD Information ***"
-			echo "SSD Reads: $SSDREADS" >> /home/$USER/Desktop/sensors.txt
-			echo "SSD Writes: $SSDWRITES" >> /home/$USER/Desktop/sensors.txt
+			echo "SSD Reads: $SSDREADS" >> "$DESKTOP/sensors.txt"
+			echo "SSD Writes: $SSDWRITES" >> "$DESKTOP/sensors.txt"
 		else
 			echo "No SSD"
 		fi
