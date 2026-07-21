@@ -84,7 +84,7 @@ WIFIVERSION=$(bash -efu "$CURRENTDIR/wifi.sh" 2>/dev/null)
 BATPERCENT=$(upower -i $(upower -e | grep BAT) | grep capacity | cut -c 5- | tr -d "%" | cut -c 22-)
 BATPERCENT=${BATPERCENT%%.*}
 SYSPRODNAME=$(sudo dmidecode -s system-product-name)
-BIOSYEAR=$(sudo dmidecode -t bios | grep "Release Date" | grep -oE '[0-9]{4}') # grab the bios year for fwupd
+
 
 
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
@@ -522,13 +522,6 @@ case $BATPERCENT in
         echo -e "${REDWHITE}\e[5m Ideally, this battery should be replaced, or subtract -\$20 from the price of the laptop \e[0m${NC}"
         ;;
 esac
-    
-# If the BIOS is 2015 or later try to refresh and update the BIOS
-if [ "$BIOSYEAR" -lt 2015 ]; then # older than 2015
-    echo "The BIOS is older than 2015 (Year: $BIOSYEAR)"
-else
-    echo "The BIOS is from 2015 or newer (Year: $BIOSYEAR) so trying to do any firmware updates"
-    fwupdmgr refresh
-    fwupdmgr get-updates
-    fwupdmgr update
-fi
+
+# Moved BIOS update to another script so it doesn't happen before we run mint-extras    
+
