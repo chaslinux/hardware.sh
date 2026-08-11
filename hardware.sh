@@ -523,5 +523,7 @@ case $BATPERCENT in
         ;;
 esac
 
-# Moved BIOS update to another script so it doesn't happen before we run mint-extras    
+# Set the Lock/screensaver to 30 minutes instead of the 5 minute default
+echo "Adjusting the screensaver timeout from 5 minutes to 30 minutes."
+gsettings set org.cinnamon.desktop.session idle-delay 1800
 
