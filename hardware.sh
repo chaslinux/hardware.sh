@@ -56,7 +56,7 @@ SERIALNO=$(sudo dmidecode --string system-serial-number)
 SLEN=$(echo "$SERIALNO" | awk '{print length}') # added this because SERIAL NUMBER
 MMFG=$(echo "$DMI"  | grep Manu | cut -c 16-)
 MMODEL=$(echo "$DMI"  | grep Product | cut -c 15- | tr -d "_")
-CPUMODEL=$(grep -m 1 "model name" /proc/cpuinfo | cut -c 14-)
+CPUMODEL=$(awk -F': ' '/model name/ {print $2; exit}' /proc/cpuinfo)
 COREDETECT=$(sensors | grep "Core ")
 AMDTDIE=$(sensors | grep "Tdie:" | cut -c 15-)
 VRAM=$(glxinfo | grep "Video memory")
@@ -64,7 +64,7 @@ VLEN=$(echo "$VRAM" | awk '{print length}') # vram character length
 SDDRIVE=$(ls -1 /dev/sd?)
 EMMC=$(ls -l /dev/mmcblk*)
 NVME=$(sudo nvme list | grep nvme || true)
-NVMENAME=$(sudo nvme list | grep nvme | cut -c -12)
+NVMENAME=$(sudo nvme list | awk '/nvme/ {print $1; exit}')
 HDDFAMILY=$(sudo smartctl -d ata -a -i "$SDDRIVE" | grep "Model" | tr -d "_")
 OSFAMILY=$(echo "$LSB" | grep "Description" | cut -c 14-)
 # OSRELEASE=$(lsb_release -a | grep "Release:" | cut -c 10-)
@@ -76,16 +76,14 @@ PROD2=$(echo "$DMI"  | grep "Product Name" | cut -c 16- | tr -d "_")
 # PRODUCT="$PROD1 $PROD2"
 NETWORK=$(sudo lshw -class network | grep product | cut -c 17-)
 echo -e "${LTGREEN}*** ${YELLOW}\e[5mTesting CPU performance, please be patient (approx 15 seconds)...\e[0m ${LTGREEN}*** ${NC}"
-SINGLEBENCH=$(sysbench cpu run | grep "events per second:" | cut -c 24-)
-MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | grep "events per second:" | cut -c 24-)
+SINGLEBENCH=$(sysbench --threads=1 cpu run | awk '/events per second:/ {print $NF}')
+MULTIBENCH=$(sysbench --threads="$(nproc)" cpu run | awk '/events per second:/ {print $NF}')
 # DEBIANCHECK=$(lsb_release -a | grep "Description" | cut -c 14- | cut -c -6)
-BTVERSION=$(hciconfig -a | grep "LMP Version:" | cut -c 15- | cut -c -3)
+BTVERSION=$(hciconfig -a | awk '/LMP Version:/ {print $NF}')
 WIFIVERSION=$(bash -efu "$CURRENTDIR/wifi.sh" 2>/dev/null)
 BATPERCENT=$(upower -i $(upower -e | grep BAT) | grep capacity | cut -c 5- | tr -d "%" | cut -c 22-)
 BATPERCENT=${BATPERCENT%%.*}
 SYSPRODNAME=$(sudo dmidecode -s system-product-name)
-
-
 
 ### We found the webcam of the ThinkPad X240 had a red tinge on all apps, this is a workaround
 if [[ "$FAMILY" == "ThinkPad X240" ]]; then
@@ -301,7 +299,7 @@ fi
 
 if lshw -short | grep nvme; then
 	{
-	lshw -short | grep -m1 nvme | cut -c 17- | tr -d "_"
+	lshw -short | awk '/nvme/ {gsub(/_/, ""); print substr($0, 17); exit}'
 	printf '\\newline\n'
 	} >> "$DESKTOP/specs.tex"
 fi
